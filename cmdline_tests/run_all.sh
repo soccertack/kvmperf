@@ -1,7 +1,10 @@
 #!/bin/bash
 
-TARGET_IP="10.10.1.100"
+TARGET_IP=${1:10.10.1.100}
+L0_IP="10.10.1.2"
+L1_IP="10.10.1.100"
 
+echo "Make sure that you consumed memory!"
 #TODO: ask before delete
 sudo rm *.txt
 
@@ -12,6 +15,18 @@ SERVICES="mysql netserver apache2 memcached"
 TESTS=( $TESTS )
 SERVICES=( $SERVICES )
 KVMPERF_PATH="/root/kvmperf/cmdline_tests"
+LOCAL_PATH="/root/kvmperf/localtests"
+L0_QEMU_PATH="/srv/vm/qemu/scripts/qmp"
+L1_QEMU_PATH="/root/vm/qemu/scripts/qmp"
+
+#Isolate vcpus
+ssh root@$L0_IP "pushd ${L0_QEMU_PATH};./isolate_vcpus.sh"
+#Isolate L2 vcpus if we have
+ssh root@$L1_IP "pushd ${L1_QEMU_PATH};./isolate_vcpus.sh"
+
+# Run local tests
+ssh root@$TARGET_IP "pushd ${LOCAL_PATH};./run_all 3 1 0 4"
+ssh root@$TARGET_IP "pushd ${LOCAL_PATH};rm *.txt"
 
 # Prepare tests
 __i=0
