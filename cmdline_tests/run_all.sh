@@ -10,7 +10,7 @@ sudo rm *.txt
 
 # mysql should be the first one in the list
 TESTS="mysql netperf apache memcached"
-SERVICES="mysql netserver apache2 memcached"
+SERVICES="mysql netperf apache2 memcached"
 
 USER=jintackl
 TESTS=( $TESTS )
