@@ -32,7 +32,7 @@ if [[ "$ACTION" == "prep" ]]; then
 	sysbench --test=oltp --oltp-table-size=$TABLE_SIZE --mysql-password=kvm prepare
 elif [[ "$ACTION" == "run" ]]; then
 	# Exec
-	for num_threads in 1 2 4 8 20 100 200 400; do
+	for num_threads in 200; do
 		echo -e "$num_threads threads:\n---" >> $RESULTS
 		for i in `seq 1 $REPTS`; do
 			sync && echo 3 > /proc/sys/vm/drop_caches
