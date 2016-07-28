@@ -39,7 +39,7 @@ for TEST in ${TESTS[@]}; do
 	__i=$(($__i+1))
 done
 
-# Allow memcached to get requests from servers
+# Allow memcached and mysql to get requests from servers
 ssh root@$TARGET_IP "sed -i 's/^-l/#-l/' /etc/memcached.conf"
 ssh root@$TARGET_IP "sed -i 's/^bind/#bind/' /etc/mysql/my.cnf"
 
