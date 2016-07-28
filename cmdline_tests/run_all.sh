@@ -1,6 +1,6 @@
 #!/bin/bash
 
-TARGET_IP=${1:10.10.1.100}
+TARGET_IP=${1:-"10.10.1.100"}
 L0_IP="10.10.1.2"
 L1_IP="10.10.1.100"
 
@@ -12,6 +12,7 @@ sudo rm *.txt
 TESTS="mysql netperf apache memcached"
 SERVICES="mysql netserver apache2 memcached"
 
+USER=jintackl
 TESTS=( $TESTS )
 SERVICES=( $SERVICES )
 KVMPERF_PATH="/root/kvmperf/cmdline_tests"
@@ -20,13 +21,13 @@ L0_QEMU_PATH="/srv/vm/qemu/scripts/qmp"
 L1_QEMU_PATH="/root/vm/qemu/scripts/qmp"
 
 #Isolate vcpus
-ssh root@$L0_IP "pushd ${L0_QEMU_PATH};./isolate_vcpus.sh"
+ssh $USER@$L0_IP "pushd ${L0_QEMU_PATH};sudo ./isolate_vcpus.sh"
 #Isolate L2 vcpus if we have
 ssh root@$L1_IP "pushd ${L1_QEMU_PATH};./isolate_vcpus.sh"
 
 # Run local tests
-ssh root@$TARGET_IP "pushd ${LOCAL_PATH};./run_all 3 1 0 4"
 ssh root@$TARGET_IP "pushd ${LOCAL_PATH};rm *.txt"
+ssh root@$TARGET_IP "pushd ${LOCAL_PATH};./run_all.sh 3 1 0 4"
 
 # Prepare tests
 __i=0
