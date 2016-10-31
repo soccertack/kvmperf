@@ -1,12 +1,14 @@
 #!/bin/bash
 
-TARGET_IP=${1:-"10.10.1.100"}
+TARGET_IP=${1:-"10.10.1.101"}
 L0_IP="10.10.1.2"
 L1_IP="10.10.1.100"
 
 echo "Make sure that you consumed memory!"
 #TODO: ask before delete
 sudo rm *.txt
+
+sudo apt-get update
 
 # mysql should be the first one in the list
 TESTS="mysql netperf apache memcached"
