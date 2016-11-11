@@ -2,7 +2,7 @@
 
 SRV=$1
 TEST=${2-ALL}
-REPTS=${3-10}
+REPTS=${3-50}
 RESULTS=netperf.txt
 
 echo "Measuring netperf performance of $SRV"
