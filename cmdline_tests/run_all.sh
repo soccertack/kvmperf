@@ -1,8 +1,22 @@
 #!/bin/bash
 
-TARGET_IP=${1:-"10.10.1.101"}
+TEST_LEVEL=${1:-"L2"}
 L0_IP="10.10.1.2"
 L1_IP="10.10.1.100"
+L2_IP="10.10.1.101"
+
+echo "TEST LEVEL: $TEST_LEVEL"
+if [ $TEST_LEVEL == "L2" ] ; then
+	TARGET_IP=$L2_IP
+elif [ $TEST_LEVEL == "L1" ] ; then
+	TARGET_IP=$L1_IP
+elif [ $TEST_LEVEL == "L0" ] ; then
+	TARGET_IP=$L0_IP
+else
+	echo "Usage: ./run_all [L0|L1|l2]"
+	exit
+fi
+echo "TARGET IP: $TARGET_IP"
 
 echo "Make sure that you consumed memory!"
 #TODO: ask before delete
