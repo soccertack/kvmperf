@@ -56,21 +56,21 @@ ssh $TEST_USER@$TARGET_IP "pushd ${LOCAL_PATH};./run_all.sh 0 3 0 10"
 __i=0
 for TEST in ${TESTS[@]}; do
 	sudo ./${TEST}_install.sh
-	ssh root@$TARGET_IP "${CMD_PATH}/${TESTS[$__i]}_install.sh"
-	ssh root@$TARGET_IP "service ${SERVICES[$__i]} stop"
-	ssh root@$TARGET_IP "service ${SERVICES[$__i]} start"
+	ssh $TEST_USER@$TARGET_IP "sudo ${CMD_PATH}/${TESTS[$__i]}_install.sh"
+	ssh $TEST_USER@$TARGET_IP "sudo service ${SERVICES[$__i]} stop"
+	ssh $TEST_USER@$TARGET_IP "sudo service ${SERVICES[$__i]} start"
 	__i=$(($__i+1))
 done
 
 # Allow memcached and mysql to get requests from servers
-ssh root@$TARGET_IP "sed -i 's/^-l/#-l/' /etc/memcached.conf"
-ssh root@$TARGET_IP "sed -i 's/^bind/#bind/' /etc/mysql/my.cnf"
+ssh $TEST_USER@$TARGET_IP "sudo sed -i 's/^-l/#-l/' /etc/memcached.conf"
+ssh $TEST_USER@$TARGET_IP "sudo sed -i 's/^bind/#bind/' /etc/mysql/my.cnf"
 
 # Run mysql
-ssh root@$TARGET_IP "pushd ${CMD_PATH};./mysql.sh cleanup"
-ssh root@$TARGET_IP "pushd ${CMD_PATH};./mysql.sh prep"
+ssh $TEST_USER@$TARGET_IP "pushd ${CMD_PATH};sudo ./mysql.sh cleanup"
+ssh $TEST_USER@$TARGET_IP "pushd ${CMD_PATH};sudo ./mysql.sh prep"
 sudo ./mysql.sh run $TARGET_IP
-ssh root@$TARGET_IP "pushd ${CMD_PATH};./mysql.sh cleanup"
+ssh $TEST_USER@$TARGET_IP "pushd ${CMD_PATH};sudo ./mysql.sh cleanup"
 
 # Run tests except mysql
 __i=1
