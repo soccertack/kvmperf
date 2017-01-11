@@ -5,6 +5,7 @@ L0_IP="10.10.1.2"
 L1_IP="10.10.1.100"
 L2_IP="10.10.1.101"
 ME=jintackl
+TEST_USER="root"
 
 echo "TEST LEVEL: $TEST_LEVEL"
 if [ $TEST_LEVEL == "L2" ] ; then
@@ -16,6 +17,7 @@ elif [ $TEST_LEVEL == "L1" ] ; then
 elif [ $TEST_LEVEL == "L0" ] ; then
 	TARGET_IP=$L0_IP
 	KVMPERF_PATH="/users/$ME/kvmperf"
+	TEST_USER=$ME
 else
 	echo "Usage: ./run_all [L0|L1|l2]"
 	exit
@@ -37,14 +39,18 @@ LOCAL_PATH=$KVMPERF_PATH/localtests
 L0_QEMU_PATH="/srv/vm/qemu/scripts/qmp"
 L1_QEMU_PATH="/root/vm/qemu/scripts/qmp"
 
-#Isolate vcpus
-ssh $USER@$L0_IP "pushd ${L0_QEMU_PATH};sudo ./isolate_vcpus.sh"
-#Isolate L2 vcpus if we have
-ssh root@$L1_IP "pushd ${L1_QEMU_PATH};./isolate_vcpus.sh"
+if [ $TEST_LEVEL != "L0" ] ; then
+	#Isolate vcpus
+	ssh $ME@$L0_IP "pushd ${L0_QEMU_PATH};sudo ./isolate_vcpus.sh"
+	if [ $TEST_LEVEL != "L1" ] ; then
+		#Isolate L2 vcpus if we have
+		ssh root@$L1_IP "pushd ${L1_QEMU_PATH};./isolate_vcpus.sh"
+	fi
+fi
 
 # Run local tests
-ssh root@$TARGET_IP "pushd ${LOCAL_PATH};rm *.txt"
-ssh root@$TARGET_IP "pushd ${LOCAL_PATH};./run_all.sh 3 1 0 4"
+ssh $TEST_USER@$TARGET_IP "pushd ${LOCAL_PATH};rm *.txt"
+ssh $TEST_USER@$TARGET_IP "pushd ${LOCAL_PATH};./run_all.sh 3 1 0 4"
 
 # Prepare tests
 __i=0
