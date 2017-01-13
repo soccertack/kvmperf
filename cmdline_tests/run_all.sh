@@ -50,7 +50,7 @@ fi
 
 # Run local tests
 ssh $TEST_USER@$TARGET_IP "pushd ${LOCAL_PATH};rm *.txt"
-ssh $TEST_USER@$TARGET_IP "pushd ${LOCAL_PATH};./run_all.sh 0 3 0 10"
+ssh $TEST_USER@$TARGET_IP "pushd ${LOCAL_PATH};sudo ./run_all.sh 0 3 0 10"
 
 # Prepare tests
 __i=0
