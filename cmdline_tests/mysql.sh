@@ -39,6 +39,7 @@ elif [[ "$ACTION" == "run" ]]; then
 			sleep 5
 			sysbench --test=oltp --oltp-table-size=$TABLE_SIZE --num-threads=$num_threads --mysql-host=$SERVER --mysql-password=kvm run | tee \
 				>(grep 'total time:' | awk '{ print $3 }' | sed 's/s//' >> $RESULTS)
+			sleep 2 # Just to give some time to write the data to $RESULTS before echo "" >> $RESULTS happens.
 		done;
 		echo "" >> $RESULTS
 	done;
