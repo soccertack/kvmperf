@@ -47,6 +47,9 @@ show_tests() {
 	if [[ $number == 0 ]]; then
 		echo "Begin test"
 		break;
+	elif [[ $number == "" ]]; then
+		echo "Begin test"
+		break;
 	elif [[ $number == 1 ]]; then
 		__i=0
 		for TEST in ${TESTS[@]}; do
@@ -81,7 +84,6 @@ for TEST in ${TESTS[@]}; do
 	__i=$(($__i+1))
 done
 
-exit
 echo "TEST LEVEL: $TEST_LEVEL"
 if [ $TEST_LEVEL == "L2" ] ; then
 	TARGET_IP=$L2_IP
@@ -145,20 +147,19 @@ done
 ssh $TEST_USER@$TARGET_IP "sudo sed -i 's/^-l/#-l/' /etc/memcached.conf"
 ssh $TEST_USER@$TARGET_IP "sudo sed -i 's/^bind/#bind/' /etc/mysql/my.cnf"
 
-# Run mysql
+# Run tests
 __i=0
-if [[ ${TEST_ARRAY[$__i]} == 1 ]]; then
-	ssh $TEST_USER@$TARGET_IP "pushd ${CMD_PATH};sudo ./mysql.sh cleanup"
-	ssh $TEST_USER@$TARGET_IP "pushd ${CMD_PATH};sudo ./mysql.sh prep"
-	sudo ./mysql.sh run $TARGET_IP
-	ssh $TEST_USER@$TARGET_IP "pushd ${CMD_PATH};sudo ./mysql.sh cleanup"
-fi
-
-# Run tests except mysql
-__i=1
 for TEST in ${TESTS[@]}; do
 	if [[ ${TEST_ARRAY[$__i]} == 1 ]]; then
-		./$TEST.sh $TARGET_IP
+		# Commands for mysql is a bit different from others.
+		if [[ $__i == 0 ]]; then
+			ssh $TEST_USER@$TARGET_IP "pushd ${CMD_PATH};sudo ./mysql.sh cleanup"
+			ssh $TEST_USER@$TARGET_IP "pushd ${CMD_PATH};sudo ./mysql.sh prep"
+			sudo ./mysql.sh run $TARGET_IP
+			ssh $TEST_USER@$TARGET_IP "pushd ${CMD_PATH};sudo ./mysql.sh cleanup"
+		else
+			./$TEST.sh $TARGET_IP
+		fi
 	fi
 	__i=$(($__i+1))
 done
