@@ -113,17 +113,6 @@ TESTS=( $TESTS )
 SERVICES=( $SERVICES )
 CMD_PATH=$KVMPERF_PATH/cmdline_tests
 LOCAL_PATH=$KVMPERF_PATH/localtests
-L0_QEMU_PATH="/srv/vm/qemu/scripts/qmp"
-L1_QEMU_PATH="/root/vm/qemu/scripts/qmp"
-
-if [ $TEST_LEVEL != "L0" ] ; then
-	#Isolate vcpus
-	ssh $ME@$L0_IP "pushd ${L0_QEMU_PATH};sudo ./isolate_vcpus.sh"
-	if [ $TEST_LEVEL != "L1" ] ; then
-		#Isolate L2 vcpus if we have
-		ssh root@$L1_IP "pushd ${L1_QEMU_PATH};./isolate_vcpus.sh"
-	fi
-fi
 
 # Run local tests
 if [[ $LOCAL == 1 ]]; then
