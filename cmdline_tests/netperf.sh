@@ -4,12 +4,11 @@ SRV=$1
 TEST=${2-ALL}
 REPTS=${3-50}
 RESULTS=netperf.txt
-EXITS=exits.txt
+EXITS=netperf-exits.txt
 echo "Measuring netperf performance of $SRV"
 
 
-#for _TEST in TCP_MAERTS TCP_STREAM TCP_RR; do
-for _TEST in TCP_MAERTS ; do
+for _TEST in TCP_MAERTS TCP_STREAM TCP_RR; do
 	if [[ "$TEST" != "ALL" && "$TEST" != "$_TEST" ]]; then
 		continue
 	fi
