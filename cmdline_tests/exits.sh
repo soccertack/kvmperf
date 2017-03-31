@@ -18,23 +18,23 @@ declare -a CURR_VMCS_EXIT
 declare -a CURR_MSR_EXIT
 
 function save_prev {
-	PREV_EXIT[$1]=$(ssh jintackl@$2 'sudo cat /sys/kernel/debug/kvm/exits')
-	PREV_IO_EXIT[$1]=$(ssh jintackl@$2 'sudo cat /sys/kernel/debug/kvm/io_exits')
-	PREV_IRQ_EXIT[$1]=$(ssh jintackl@$2 'sudo cat /sys/kernel/debug/kvm/irq_exits')
-	PREV_HALT_EXIT[$1]=$(ssh jintackl@$2 'sudo cat /sys/kernel/debug/kvm/halt_exits')
-	PREV_MMIO_EXIT[$1]=$(ssh jintackl@$2 'sudo cat /sys/kernel/debug/kvm/mmio_exits')
-	PREV_VMCS_EXIT[$1]=$(ssh jintackl@$2 'sudo cat /sys/kernel/debug/kvm/vmcs')
-	PREV_MSR_EXIT[$1]=$(ssh jintackl@$2 'sudo cat /sys/kernel/debug/kvm/msr')
+	PREV_EXIT[$1]=$(ssh $3@$2 'sudo cat /sys/kernel/debug/kvm/exits')
+	PREV_IO_EXIT[$1]=$(ssh $3@$2 'sudo cat /sys/kernel/debug/kvm/io_exits')
+	PREV_IRQ_EXIT[$1]=$(ssh $3@$2 'sudo cat /sys/kernel/debug/kvm/irq_exits')
+	PREV_HALT_EXIT[$1]=$(ssh $3@$2 'sudo cat /sys/kernel/debug/kvm/halt_exits')
+	PREV_MMIO_EXIT[$1]=$(ssh $3@$2 'sudo cat /sys/kernel/debug/kvm/mmio_exits')
+	PREV_VMCS_EXIT[$1]=$(ssh $3@$2 'sudo cat /sys/kernel/debug/kvm/vmcs')
+	PREV_MSR_EXIT[$1]=$(ssh $3@$2 'sudo cat /sys/kernel/debug/kvm/msr')
 }
 
 function save_curr {
-	CURR_EXIT[$1]=$(ssh jintackl@$2 'sudo cat /sys/kernel/debug/kvm/exits')
-	CURR_IO_EXIT[$1]=$(ssh jintackl@$2 'sudo cat /sys/kernel/debug/kvm/io_exits')
-	CURR_IRQ_EXIT[$1]=$(ssh jintackl@$2 'sudo cat /sys/kernel/debug/kvm/irq_exits')
-	CURR_HALT_EXIT[$1]=$(ssh jintackl@$2 'sudo cat /sys/kernel/debug/kvm/halt_exits')
-	CURR_MMIO_EXIT[$1]=$(ssh jintackl@$2 'sudo cat /sys/kernel/debug/kvm/mmio_exits')
-	CURR_VMCS_EXIT[$1]=$(ssh jintackl@$2 'sudo cat /sys/kernel/debug/kvm/vmcs')
-	CURR_MSR_EXIT[$1]=$(ssh jintackl@$2 'sudo cat /sys/kernel/debug/kvm/msr')
+	CURR_EXIT[$1]=$(ssh $3@$2 'sudo cat /sys/kernel/debug/kvm/exits')
+	CURR_IO_EXIT[$1]=$(ssh $3@$2 'sudo cat /sys/kernel/debug/kvm/io_exits')
+	CURR_IRQ_EXIT[$1]=$(ssh $3@$2 'sudo cat /sys/kernel/debug/kvm/irq_exits')
+	CURR_HALT_EXIT[$1]=$(ssh $3@$2 'sudo cat /sys/kernel/debug/kvm/halt_exits')
+	CURR_MMIO_EXIT[$1]=$(ssh $3@$2 'sudo cat /sys/kernel/debug/kvm/mmio_exits')
+	CURR_VMCS_EXIT[$1]=$(ssh $3@$2 'sudo cat /sys/kernel/debug/kvm/vmcs')
+	CURR_MSR_EXIT[$1]=$(ssh $3@$2 'sudo cat /sys/kernel/debug/kvm/msr')
 }
 
 function print_title {
