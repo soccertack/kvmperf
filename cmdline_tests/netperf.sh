@@ -17,6 +17,7 @@ for _TEST in TCP_MAERTS TCP_STREAM TCP_RR; do
 			netperf -T ,2 -H $SRV -t $_TEST | tee >(cat > /tmp/netperf_single.txt)
 		else
 			netperf -H $SRV -t $_TEST | tee >(cat > /tmp/netperf_single.txt)
+		fi
 		if [[ $? == 0 ]]; then
 			if [[ "$_TEST" == "TCP_RR" ]]; then
 				cat /tmp/netperf_single.txt | tail -n 2 | head -n 1 | awk '{ print $6 }' >> $RESULTS
