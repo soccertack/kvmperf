@@ -22,6 +22,7 @@ for _TEST in TCP_RR ; do
 			netperf -T ,2 -H $SRV -t $_TEST | tee >(cat > /tmp/netperf_single.txt)
 		else
 			netperf -H $SRV -t $_TEST | tee >(cat > /tmp/netperf_single.txt)
+		fi
 		save_curr 0 10.10.1.2 jintackl
 		save_curr 1 10.10.1.100 root
 		save_diff 0
