@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SERVER=${1-127.0.0.1}
-REPTS=${2-1}
+REPTS=${2-5}
 RESULTS=memcached.txt
 source exits.sh memcached
 
