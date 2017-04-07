@@ -1,6 +1,9 @@
 #!/bin/bash
 
 TEST_LEVEL=${1:-"L2"}
+
+source ./check.sh $TEST_LEVEL
+
 L0_IP="10.10.1.2"
 L1_IP="10.10.1.100"
 L2_IP="10.10.1.101"
