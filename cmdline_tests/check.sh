@@ -113,6 +113,7 @@ function irqb_check()
 		echo "irqbalance is running: $IRQB in $1"
 	else
 		echo "irqbalance is NOT running"
+		proceed "Want to Proceed?"
 	fi
 }
 
