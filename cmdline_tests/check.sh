@@ -21,6 +21,8 @@ else
 	QEMU_CMD=$QEMU_CMD_ARM
 fi
 
+IRQB_CMD="pgrep irqbalance"
+
 function proceed()
 {
 	read -r -p "$1 [y/N] " response
@@ -99,6 +101,34 @@ function qemu_check_all()
 	fi
 }
 
+function irqb_check()
+{
+	if [[ -z "$2" ]]; then
+		IRQB=`$IRQB_CMD`
+	else
+		IRQB=`ssh $2@$3 $IRQB_CMD`
+	fi
+
+	if [[ $? -eq 0 ]]; then
+		echo "irqbalance is running: $IRQB in $1"
+	else
+		echo "irqbalance is NOT running"
+	fi
+}
+
+function irqbalance_check_all()
+{
+	irqb_check Client
+	irqb_check L0 $USER 10.10.1.2
+	if [[ "$TEST_LEVEL" != "L0" ]]; then
+		irqb_check L1 $USER 10.10.1.2
+	fi
+	if [[ "$TEST_LEVEL" == "L2" ]]; then
+		irqb_check L2 root 10.10.1.100
+	fi
+}
+
 kernel_check_all
 qemu_check_all
 mem_check
+irqbalance_check_all
