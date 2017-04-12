@@ -13,7 +13,7 @@ TEST_USER="root"
 LOCAL=0
 IDX_OFFSET=3
 
-TESTS="mysql netperf apache memcached"
+TESTS="mysql netperf apache memcached nginx"
 TEST_LIST=( $TESTS )
 
 __i=0
@@ -62,7 +62,7 @@ show_tests() {
 		LOCAL=1
 	elif [[ $number == 2 ]]; then
 		LOCAL=1
-	elif [[ $number -lt 7  ]]; then
+	elif [[ $number -lt 8  ]]; then
 		idx=$(($number-$IDX_OFFSET))
 		TEST_ARRAY[$idx]=1
 	else
