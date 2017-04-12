@@ -9,7 +9,7 @@ echo "Measuring performance of $SRV"
 NR_REQUESTS=100000
 RESULTS=apache.txt
 ab=/usr/bin/ab
-CMD="$ab -n $NR_REQUESTS -c 100 http://$SRV/gcc/index.html"
+CMD="$ab -n $NR_REQUESTS -c 10 http://$SRV/gcc/index.html"
 
 service apache2 start
 
