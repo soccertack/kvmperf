@@ -13,7 +13,10 @@ TEST_USER="root"
 LOCAL=0
 IDX_OFFSET=3
 
+# mysql should be the first one in the list
 TESTS="mysql netperf apache memcached nginx"
+SERVICES="mysql netperf apache2 memcached nginx"
+
 TEST_LIST=( $TESTS )
 
 __i=0
@@ -108,9 +111,6 @@ echo "Make sure that you consumed memory!"
 #TODO: ask before delete
 sudo rm *.txt
 
-# mysql should be the first one in the list
-TESTS="mysql netperf apache memcached"
-SERVICES="mysql netperf apache2 memcached"
 
 TESTS=( $TESTS )
 SERVICES=( $SERVICES )
