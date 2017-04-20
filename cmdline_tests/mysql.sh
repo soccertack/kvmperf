@@ -33,15 +33,24 @@ if [[ "$ACTION" == "prep" ]]; then
 	sysbench --test=oltp --oltp-table-size=$TABLE_SIZE --mysql-password=kvm prepare
 elif [[ "$ACTION" == "run" ]]; then
 	# Exec
+	source exits.sh mysql
+	print_title
 	for num_threads in 200; do
 		echo -e "$num_threads threads:\n---" >> $RESULTS
 		for i in `seq 1 $REPTS`; do
 			sync && echo 3 > /proc/sys/vm/drop_caches
 			sleep 5
 			PREV_EXIT=$(ssh jintackl@10.10.1.2 'sudo cat /sys/kernel/debug/kvm/exits')
+
+			save_prev 0 10.10.1.2 jintackl
+			save_prev 1 10.10.1.100 root
 			sysbench --test=oltp --oltp-table-size=$TABLE_SIZE --num-threads=$num_threads --mysql-host=$SERVER --mysql-password=kvm run | tee \
 				>(grep 'total time:' | awk '{ print $3 }' | sed 's/s//' >> $RESULTS)
-			
+			save_curr 0 10.10.1.2 jintackl
+			save_curr 1 10.10.1.100 root
+			save_diff 0
+			save_diff 1
+
 			CURR_EXIT=$(ssh jintackl@10.10.1.2 'sudo cat /sys/kernel/debug/kvm/exits')
 			N_EXIT=$((CURR_EXIT - PREV_EXIT))
 			echo "Number of exits: $N_EXIT"
