@@ -2,7 +2,7 @@
 
 SERVER=${1-127.0.0.1}
 REPTS=${2-40}
-RESULTS=memcached.txt
+RESULTS=${3-memcached.txt}
 
 echo "Benchmarking $SERVER" | tee >(cat >> $RESULTS)
 for i in `seq 1 $REPTS`; do
