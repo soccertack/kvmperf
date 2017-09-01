@@ -16,6 +16,7 @@ def read_last_line(filename):
 
 def run_memcached(n_run, out_filename = "memcached.txt"):
 	os.system('ssh root@10.10.1.101 "sudo service memcached start"')
+	time.sleep(1)
 	os.system("./memcached.sh 10.10.1.101 %d %s" % (n_run, out_filename))
 
 	time.sleep(1)
