@@ -3,6 +3,7 @@
 TIMELOG=${TIMELOG-$(pwd)/kernbench.txt}
 
 source setup.sh
+source setup-kernel.sh
 
 TEST_KERNBENCH_REPEAT=${1-1}
 

@@ -27,8 +27,13 @@ TEST_HACKBENCH_REPEAT=${4:-4}
 
 #./pbzip.sh $TEST_PBZIP_REPEAT
 #./fio.sh $TEST_FIO_REPEAT
-./kernbench.sh $TEST_KERNBENCH_REPEAT
-./hackbench.sh $TEST_HACKBENCH_REPEAT
+if [[ $TEST_KERNBENCH_REPEAT -ne 0 ]]; then
+	./kernbench.sh $TEST_KERNBENCH_REPEAT
+fi
+
+if [[ $TEST_HACKBENCH_REPEAT -ne 0 ]]; then
+	./hackbench.sh $TEST_HACKBENCH_REPEAT
+fi
 
 
 cat $TIMELOG
