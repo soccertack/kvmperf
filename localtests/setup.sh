@@ -51,7 +51,7 @@ else
 	tar xfz $KERNEL_TAR
 fi
 
-:'
+: '
 if [[ -f $KERNEL_XZ ]]; then
 	echo "$KERNEL_XZ is here"
 else
