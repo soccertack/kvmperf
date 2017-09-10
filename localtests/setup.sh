@@ -51,6 +51,7 @@ else
 	tar xfz $KERNEL_TAR
 fi
 
+:'
 if [[ -f $KERNEL_XZ ]]; then
 	echo "$KERNEL_XZ is here"
 else
@@ -66,4 +67,5 @@ else
 	pbzip2 -k -p2 -m500 $KERNEL_XZ
 	sync
 fi
+'
 popd
