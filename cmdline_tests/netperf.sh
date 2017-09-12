@@ -7,7 +7,7 @@ RESULTS=netperf.txt
 
 echo "Measuring netperf performance of $SRV"
 
-for _TEST in TCP_MAERTS TCP_STREAM TCP_RR; do
+for _TEST in TCP_STREAM TCP_RR TCP_MAERTS ; do
 	if [[ "$TEST" != "ALL" && "$TEST" != "$_TEST" ]]; then
 		continue
 	fi
