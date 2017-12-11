@@ -129,8 +129,6 @@ for TEST in ${TESTS[@]}; do
 	if [[ ${TEST_ARRAY[$__i]} == 1 ]]; then
 		sudo ./${TEST}_install.sh
 		ssh $TEST_USER@$TARGET_IP "sudo ${CMD_PATH}/${TESTS[$__i]}_install.sh"
-		ssh $TEST_USER@$TARGET_IP "sudo service ${SERVICES[$__i]} stop"
-		ssh $TEST_USER@$TARGET_IP "sudo service ${SERVICES[$__i]} start"
 	fi
 	__i=$(($__i+1))
 done
@@ -150,7 +148,9 @@ for TEST in ${TESTS[@]}; do
 			sudo ./mysql.sh run $TARGET_IP
 			ssh $TEST_USER@$TARGET_IP "pushd ${CMD_PATH};sudo ./mysql.sh cleanup"
 		else
+			ssh $TEST_USER@$TARGET_IP "sudo service ${SERVICES[$__i]} start"
 			./$TEST.sh $TARGET_IP
+			ssh $TEST_USER@$TARGET_IP "sudo service ${SERVICES[$__i]} stop"
 		fi
 	fi
 	__i=$(($__i+1))
