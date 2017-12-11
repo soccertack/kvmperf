@@ -34,6 +34,8 @@ else
 	QEMU_CMD=$QEMU_CMD_ARM
 fi
 
+TRACE_CMD='gunzip -c /proc/config.gz | grep CONFIG_FTRACE=y | wc -l'
+
 IRQB_CMD="pgrep irqbalance"
 
 function proceed()
@@ -89,6 +91,17 @@ function kernel_check()
 	kernel_ok $MY_KERNEL $1
 }
 
+function trace_check()
+{
+	TRACE_ON=`ssh $2@$3 $TRACE_CMD`
+	if [[ $TRACE_ON == "0" ]]; then
+		echo "$1 TRACE OFF"
+	else
+		proceed "$1 TRACE is ON. Want to Proceed?"
+	fi
+}
+
+
 function qemu_check()
 {
 	if [[ "$1" == "L1" && "$MACHINE" == "aarch64" ]]; then
@@ -110,6 +123,17 @@ function kernel_check_all()
 	fi
 	if [[ "$TEST_LEVEL" == "L2" ]]; then
 		kernel_check $L2_KERNEL L2 root 10.10.1.101
+	fi
+}
+
+function trace_check_all()
+{
+	trace_check L0 $USER 10.10.1.2
+	if [[ "$TEST_LEVEL" != "L0" ]]; then
+		trace_check L1 root 10.10.1.100
+	fi
+	if [[ "$TEST_LEVEL" == "L2" ]]; then
+		trace_check L2 root 10.10.1.101
 	fi
 }
 
@@ -152,6 +176,7 @@ function irqbalance_check_all()
 }
 
 kernel_check_all
+trace_check_all
 qemu_check_all
 mem_check
 vcpu_pin_check
