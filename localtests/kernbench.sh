@@ -16,7 +16,7 @@ if [[ -f $KERNEL/$KB ]]; then
 	echo "$KB is here"
 else
 	pushd /tmp
-	wget http://ftp.be.debian.org/pub/linux/kernel/people/ck/apps/kernbench/kernbench-0.50.tar.gz
+	wget http://www.cs.columbia.edu/~jintack/kernbench-0.50.tar.gz
 	tar xvfz $KB_TAR
 	cp $KB-$KB_VER/$KB $KERNEL
 	popd
