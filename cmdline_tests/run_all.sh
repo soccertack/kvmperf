@@ -14,8 +14,8 @@ LOCAL=0
 IDX_OFFSET=3
 
 # mysql should be the first one in the list
-TESTS="mysql netperf apache memcached nginx"
-SERVICES="mysql netperf apache2 memcached nginx"
+TESTS="mysql netperf-rr netperf-stream netperf-maerts apache memcached nginx"
+SERVICES="mysql netperf netperf netperf apache2 memcached nginx"
 
 TEST_LIST=( $TESTS )
 
@@ -127,8 +127,9 @@ fi
 __i=0
 for TEST in ${TESTS[@]}; do
 	if [[ ${TEST_ARRAY[$__i]} == 1 ]]; then
-		sudo ./${TEST}_install.sh
-		ssh $TEST_USER@$TARGET_IP "sudo ${CMD_PATH}/${TESTS[$__i]}_install.sh"
+		PKG=$(echo "$TEST" | cut -d- -f1)
+		sudo ./${PKG}_install.sh
+		ssh $TEST_USER@$TARGET_IP "sudo ${CMD_PATH}/${PKG}_install.sh"
 	fi
 	__i=$(($__i+1))
 done
