@@ -25,6 +25,7 @@ while 1:
 		except socket.timeout as e:
 			print type(e)
 			print("The socket timed out, try it again.")
+			os.system("ssh jintack@128.59.19.13 '/home/jintack/send_tg.sh L2-boot-failed'")
 			sys.exit() 
 		if len(buf) > 0:
 			print buf
