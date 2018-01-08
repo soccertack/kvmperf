@@ -8,15 +8,19 @@ import time
 import socket
 
 TIMEOUT=60.0
-EXPERIMENT_NAME=""
-if len(sys.argv) > 1:
-	EXPERIMENT_NAME = sys.argv[1]
 
-MSG_SEND_CMD="ssh jintack@128.59.19.13 '/home/jintack/send_tg.sh [%s]L2-boot-failed'" % (EXPERIMENT_NAME)
+def send_msg(msg):
+	experiment_name=""
+	if len(sys.argv) > 1:
+		experiment_name = sys.argv[1]
+	msg_send_cmd="ssh jintack@128.59.19.13 '/home/jintack/send_tg.sh [%s]%s'" % (experiment_name, msg)
+	os.system(msg_send_cmd)
+
 
 clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 clientsocket.connect(('10.10.1.2', 8889))
 
+send_msg("L2-boot-test-start")
 i = 0
 while 1:
 	i += 1
@@ -32,7 +36,7 @@ while 1:
 		except socket.timeout as e:
 			print type(e)
 			print("The socket timed out, try it again.")
-			os.system(MSG_SEND_CMD)
+			send_msg("L2-boot-failed")
 			sys.exit()
 
 		if len(buf) > 0:
