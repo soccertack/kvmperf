@@ -65,7 +65,7 @@ show_tests() {
 		LOCAL=1
 	elif [[ $number == 2 ]]; then
 		LOCAL=1
-	elif [[ $number -lt 8  ]]; then
+	elif [[ $number -lt 10  ]]; then
 		idx=$(($number-$IDX_OFFSET))
 		TEST_ARRAY[$idx]=1
 	else
