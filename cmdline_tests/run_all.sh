@@ -7,6 +7,8 @@ source ./check.sh $TEST_LEVEL
 L0_IP="10.10.1.2"
 L1_IP="10.10.1.100"
 L2_IP="10.10.1.101"
+#PP: PV-Passthrough
+L2_PP_IP="10.10.1.201"
 ME=jintackl
 TEST_USER="root"
 
@@ -93,6 +95,9 @@ done
 echo "TEST LEVEL: $TEST_LEVEL"
 if [ $TEST_LEVEL == "L2" ] ; then
 	TARGET_IP=$L2_IP
+	KVMPERF_PATH="/root/kvmperf"
+elif [ $TEST_LEVEL == "L2-PP" ] ; then
+	TARGET_IP=$L2_PP_IP
 	KVMPERF_PATH="/root/kvmperf"
 elif [ $TEST_LEVEL == "L1" ] ; then
 	TARGET_IP=$L1_IP
