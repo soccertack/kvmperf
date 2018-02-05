@@ -9,8 +9,7 @@ import socket
 def wait_for_prompt():
 	child.expect('kvm-node.*\r\n')
 
-child = pexpect.spawn('bash')
-child.logfile = sys.stdout
+child = pexpect.spawn('bash',logfile=sys.stdout)
 child.timeout=None
 
 wait_for_prompt()
