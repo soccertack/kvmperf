@@ -6,20 +6,28 @@ import datetime
 import time
 import socket
 
+def wait_for_prompt():
+	child.expect('kvm-node.*\r\n')
+
 child = pexpect.spawn('bash')
 child.logfile = sys.stdout
 child.timeout=None
 
-child.sendline('')
-child.expect('kvm-node.*')
+wait_for_prompt()
+
 child.sendline('cd ~')
-child.expect('kvm-node.*')
+wait_for_prompt()
+
 child.sendline('git clone https://github.com/soccertack/env.git')
-child.expect('kvm-node.*')
+wait_for_prompt()
+
 child.sendline('pushd env')
-child.expect('kvm-node.*')
+wait_for_prompt()
+
 child.sendline('./env.py -a')
-child.expect('kvm-node.*')
+wait_for_prompt()
+
 child.sendline('sudo ./nested.py')
-child.expect('kvm-node.*')
+wait_for_prompt()
+
 print("nested init done")
