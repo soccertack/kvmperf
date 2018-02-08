@@ -30,11 +30,12 @@ QEMU_CMD_ARM_L1='/root/vm/qemu-system-aarch64 --version'
 
 if [[ "$MACHINE" == "x86_64" ]]; then
 	QEMU_CMD=$QEMU_CMD_x86
+	TRACE_CMD='cat /boot/config-`uname -r` | grep CONFIG_FTRACE=y | wc -l'
 else
 	QEMU_CMD=$QEMU_CMD_ARM
+	TRACE_CMD='gunzip -c /proc/config.gz | grep CONFIG_FTRACE=y | wc -l'
 fi
 
-TRACE_CMD='gunzip -c /proc/config.gz | grep CONFIG_FTRACE=y | wc -l'
 
 IRQB_CMD="pgrep irqbalance"
 
