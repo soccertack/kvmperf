@@ -1,9 +1,9 @@
 #!/bin/bash
 
 #########
-TEST_KERNEL="4.10.0-rc3"
-TEST_KERNEL_ARM="4.10.0-rc3+"
-TEST_QEMU="2.3.50"
+TEST_KERNEL="4.15.0"
+TEST_KERNEL_ARM="4.15.0+"
+TEST_QEMU="2.11.0"
 #########
 
 # L0, L1 or L2
@@ -24,7 +24,7 @@ if [[ "$MACHINE" == "x86_64" ]]; then
 		L1_KERNEL=$TEST_KERNEL_ARM
 fi
 
-QEMU_CMD_x86='qemu-system-x86_64 --version'
+QEMU_CMD_x86='/srv/vm/qemu-system-x86_64 --version'
 QEMU_CMD_ARM='/srv/vm/qemu-system-aarch64 --version'
 QEMU_CMD_ARM_L1='/root/vm/qemu-system-aarch64 --version'
 
@@ -72,7 +72,13 @@ function qemu_ok()
 
 function vcpu_pin_check()
 {
-	proceed "Have you pinned vcpus in L0 AND L1?"
+
+	if [[ "$TEST_LEVEL" == "L1" ]]; then
+		proceed "Have you pinned vcpus in L0?"
+	fi
+	if [[ "$TEST_LEVEL" == "L2" ]]; then
+		proceed "Have you pinned vcpus in L0 AND L1?"
+	fi
 }
 
 function mem_check()
