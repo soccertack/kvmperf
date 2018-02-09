@@ -24,7 +24,7 @@ if [[ "$MACHINE" == "x86_64" ]]; then
 		L1_KERNEL=$TEST_KERNEL_ARM
 fi
 
-QEMU_CMD_x86='/srv/vm/qemu-system-x86_64 --version'
+QEMU_CMD_x86='/srv/vm/qemu/x86_64-softmmu/qemu-system-x86_64 --version'
 QEMU_CMD_ARM='/srv/vm/qemu-system-aarch64 --version'
 QEMU_CMD_ARM_L1='/root/vm/qemu-system-aarch64 --version'
 
