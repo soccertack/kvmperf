@@ -26,7 +26,7 @@ TEST_FIO_REPEAT=${3:-3}
 TEST_HACKBENCH_REPEAT=${4:-4}
 
 #./pbzip.sh $TEST_PBZIP_REPEAT
-#./fio.sh $TEST_FIO_REPEAT
+./fio.sh $TEST_FIO_REPEAT
 if [[ $TEST_KERNBENCH_REPEAT -ne 0 ]]; then
 	./kernbench.sh $TEST_KERNBENCH_REPEAT
 fi

@@ -71,14 +71,18 @@ if [[ ! $TEST_FIO_REPEAT == 0 ]]; then
 
 	echo "fio random read (in msec)" >> $TIMELOG
 	for i in `seq 1 $TEST_FIO_REPEAT`; do
+		echo "fio copy kernel.xz"
 		cp $KERNEL_XZ $FIO_TEST_DIR
 		refresh
+		echo "fio read test start"
 		$FIO random-read-test.fio | tee >(grep 'read : io' | awk 'BEGIN { FS = "=" }; {print $5+0}' >> $TIMELOG)
 	done
 	echo "fio random write (in msec)" >> $TIMELOG
 	for i in `seq 1 $TEST_FIO_REPEAT`; do
+		echo "fio copy kernel.xz"
 		cp $KERNEL_XZ $FIO_TEST_DIR
 		refresh
+		echo "fio write test start"
 		$FIO random-write-test.fio | tee >(grep 'write: io' | awk 'BEGIN { FS = "="}; {print $5+0}' >> $TIMELOG)
 	done
 	rm -rf $FIO_TEST_DIR
