@@ -41,27 +41,24 @@ if [[ "$SERVER" != "localhost" && ("$ACTION" == "prep" || "$ACTION" == "cleanup"
 fi
 
 if [[ "$ACTION" == "prep" ]]; then
-	echo "Do nothing on prep"
+	service mysql start
+	cleanup
+	prepare
 elif [[ "$ACTION" == "run" ]]; then
 	# Exec
 	for num_threads in 200; do
 		echo -e "$num_threads threads:\n---" >> $RESULTS
 		for i in `seq 1 $REPTS`; do
 			sync && echo 3 > /proc/sys/vm/drop_caches
-			service mysql start
-			cleanup
-			prepare
-			sleep 2
+			ssh $TEST_USER@$TARGET_IP "pushd ${CMD_PATH};sudo ./mysql.sh prep"
 			run
-			sleep 2 
-			cleanup
-			service mysql stop
+			ssh $TEST_USER@$TARGET_IP "pushd ${CMD_PATH};sudo ./mysql.sh cleanup"
 		done;
 		echo "" >> $RESULTS
 	done;
 elif [[ "$ACTION" == "cleanup" ]]; then
-	# Cleanup
-	echo "Do nothing on cleanup"
+	# We will do a lazy-cleanup.
+	service mysql stop
 else
 	usage
 fi

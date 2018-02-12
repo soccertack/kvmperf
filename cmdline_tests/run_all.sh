@@ -149,7 +149,6 @@ for TEST in ${TESTS[@]}; do
 	if [[ ${TEST_ARRAY[$__i]} == 1 ]]; then
 		# Commands for mysql is a bit different from others.
 		if [[ $__i == 0 ]]; then
-			ssh $TEST_USER@$TARGET_IP "pushd ${CMD_PATH};sudo ./mysql.sh cleanup"
 			ssh $TEST_USER@$TARGET_IP "pushd ${CMD_PATH};sudo ./mysql.sh prep"
 			sudo ./mysql.sh run $TARGET_IP
 			ssh $TEST_USER@$TARGET_IP "pushd ${CMD_PATH};sudo ./mysql.sh cleanup"
