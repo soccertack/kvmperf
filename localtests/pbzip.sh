@@ -3,6 +3,7 @@
 TIMELOG=${TIMELOG-$(pwd)/pbzip.txt}
 
 source setup.sh
+source setup-kernel.sh
 
 TEST_PBZIP_REPEAT=${1-3}
 
@@ -11,6 +12,8 @@ PBZIP_DIR="/tmp/pbzip_test"
 if [[ $TEST_PBZIP_REPEAT == 0 ]]; then
 	exit 0
 fi
+
+kernel_bz
 
 rm -rf $PBZIP_DIR
 mkdir $PBZIP_DIR

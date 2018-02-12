@@ -6,6 +6,11 @@ source setup.sh
 source setup-kernel.sh
 
 TEST_KERNBENCH_REPEAT=${1-1}
+if [[ $TEST_KERNBENCH_REPEAT == 0 ]]; then
+	exit
+fi
+
+kernel_tar
 
 KB="kernbench"
 KB_VER="0.50"

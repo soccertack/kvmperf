@@ -3,12 +3,19 @@
 TIMELOG=${TIMELOG-$(pwd)/fio.txt}
 
 source setup.sh
+source setup-kernel.sh
 
 TEST_FIO_REPEAT=${1-3}
 FIO_VER="2.1.10"
 FIO_DIR="/tmp/fio"
 FIO=$FIO_DIR/fio-$FIO_VER/fio
 FIO_TAR="$FIO-$FIO_VER.tar.gz"
+
+if [[ $TEST_FIO_REPEAT == 0 ]]; then
+	exit
+fi
+
+kernel_xz
 
 mkdir -p $FIO_DIR
 pushd $FIO_DIR
