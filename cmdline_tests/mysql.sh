@@ -28,6 +28,11 @@ fi
 if [[ "$ACTION" == "prep" ]]; then
 	# Prep
 	service mysql start
+
+	# Drop database if it's still there.
+	sysbench --test=oltp --mysql-password=kvm cleanup
+	mysql -u root --password=kvm < drop_db.sql
+
 	mysql -u root --password=kvm < create_db.sql
 	sysbench --test=oltp --oltp-table-size=$TABLE_SIZE --mysql-password=kvm prepare
 elif [[ "$ACTION" == "run" ]]; then
