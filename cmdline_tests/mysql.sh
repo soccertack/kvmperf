@@ -7,6 +7,17 @@ function usage() {
 	exit 1
 }
 
+
+TARGET_IP=${2-localhost}	# dns/ip for machine to test
+TEST_USER=${3}
+CMD_PATH=${4}
+
+REPTS=${5-4}
+
+NR_REQUESTS=1000
+TABLE_SIZE=1000000
+RESULTS=mysql.txt
+
 function prepare() {
 	mysql -u root --password=kvm < create_db.sql
 	sysbench --test=oltp --oltp-table-size=$TABLE_SIZE --mysql-password=kvm prepare
@@ -18,24 +29,11 @@ function cleanup() {
 }
 
 function run() {
-	sysbench --test=oltp --oltp-table-size=$TABLE_SIZE --num-threads=$num_threads --mysql-host=$SERVER --mysql-password=kvm run | tee \
+	sysbench --test=oltp --oltp-table-size=$TABLE_SIZE --num-threads=$num_threads --mysql-host=$TARGET_IP --mysql-password=kvm run | tee \
 	>(grep 'total time:' | awk '{ print $3 }' | sed 's/s//' >> $RESULTS)
 }
 
-SERVER=${2-localhost}	# dns/ip for machine to test
-REPTS=${3-4}
-
-NR_REQUESTS=1000
-TABLE_SIZE=1000000
-RESULTS=mysql.txt
-
-if [[ "`whoami`" != "root" ]]; then
-	echo "Please run as root" >&2
-	exit 1
-fi
-
-
-if [[ "$SERVER" != "localhost" && ("$ACTION" == "prep" || "$ACTION" == "cleanup") ]]; then
+if [[ "$TARGET_IP" != "localhost" && ("$ACTION" == "prep" || "$ACTION" == "cleanup") ]]; then
 	echo "prep and cleanup actions can only be run on the db server" >&2
 	exit 1
 fi
@@ -49,7 +47,6 @@ elif [[ "$ACTION" == "run" ]]; then
 	for num_threads in 200; do
 		echo -e "$num_threads threads:\n---" >> $RESULTS
 		for i in `seq 1 $REPTS`; do
-			sync && echo 3 > /proc/sys/vm/drop_caches
 			ssh $TEST_USER@$TARGET_IP "pushd ${CMD_PATH};sudo ./mysql.sh prep"
 			run
 			ssh $TEST_USER@$TARGET_IP "pushd ${CMD_PATH};sudo ./mysql.sh cleanup"
