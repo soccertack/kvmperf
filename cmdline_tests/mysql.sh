@@ -7,6 +7,21 @@ function usage() {
 	exit 1
 }
 
+function prepare() {
+	mysql -u root --password=kvm < create_db.sql
+	sysbench --test=oltp --oltp-table-size=$TABLE_SIZE --mysql-password=kvm prepare
+}
+
+function cleanup() {
+	sysbench --test=oltp --mysql-password=kvm cleanup
+	mysql -u root --password=kvm < drop_db.sql
+}
+
+function run() {
+	sysbench --test=oltp --oltp-table-size=$TABLE_SIZE --num-threads=$num_threads --mysql-host=$SERVER --mysql-password=kvm run | tee \
+	>(grep 'total time:' | awk '{ print $3 }' | sed 's/s//' >> $RESULTS)
+}
+
 SERVER=${2-localhost}	# dns/ip for machine to test
 REPTS=${3-4}
 
@@ -26,33 +41,27 @@ if [[ "$SERVER" != "localhost" && ("$ACTION" == "prep" || "$ACTION" == "cleanup"
 fi
 
 if [[ "$ACTION" == "prep" ]]; then
-	# Prep
-	service mysql start
-
-	# Drop database if it's still there.
-	sysbench --test=oltp --mysql-password=kvm cleanup
-	mysql -u root --password=kvm < drop_db.sql
-
-	mysql -u root --password=kvm < create_db.sql
-	sysbench --test=oltp --oltp-table-size=$TABLE_SIZE --mysql-password=kvm prepare
+	echo "Do nothing on prep"
 elif [[ "$ACTION" == "run" ]]; then
 	# Exec
 	for num_threads in 200; do
 		echo -e "$num_threads threads:\n---" >> $RESULTS
 		for i in `seq 1 $REPTS`; do
 			sync && echo 3 > /proc/sys/vm/drop_caches
-			sleep 5
-			sysbench --test=oltp --oltp-table-size=$TABLE_SIZE --num-threads=$num_threads --mysql-host=$SERVER --mysql-password=kvm run | tee \
-				>(grep 'total time:' | awk '{ print $3 }' | sed 's/s//' >> $RESULTS)
-			sleep 2 # Just to give some time to write the data to $RESULTS before echo "" >> $RESULTS happens.
+			service mysql start
+			cleanup
+			prepare
+			sleep 2
+			run
+			sleep 2 
+			cleanup
+			service mysql stop
 		done;
 		echo "" >> $RESULTS
 	done;
 elif [[ "$ACTION" == "cleanup" ]]; then
 	# Cleanup
-	sysbench --test=oltp --mysql-password=kvm cleanup
-	mysql -u root --password=kvm < drop_db.sql
-	service mysql stop
+	echo "Do nothing on cleanup"
 else
 	usage
 fi
