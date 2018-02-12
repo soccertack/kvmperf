@@ -116,7 +116,7 @@ function qemu_check()
 	fi
 	QEMU_VERSION=`ssh $2@$3 $QEMU_CMD`
 
-	MY_QEMU_VERSION=`echo $QEMU_VERSION | awk '{ print $4 }' | sed 's/.$//'`
+	MY_QEMU_VERSION=`echo $QEMU_VERSION | grep version | awk '{ print $4 }'`
 	echo "$1 QEMU: $MY_QEMU_VERSION"
 	qemu_ok $MY_QEMU_VERSION
 }
