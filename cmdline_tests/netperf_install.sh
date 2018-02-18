@@ -1,5 +1,8 @@
 #!/bin/bash
 
-apt-get install -y netperf
-update-rc.d netperf disable
+which netperf > /dev/null
+if [[ $? != 0 ]]; then
+	apt-get install -y netperf
+	update-rc.d netperf disable
+fi
 

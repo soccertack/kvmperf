@@ -12,7 +12,5 @@ if [[ $? != 0 ]]; then
 	sudo apt-get install -y siege
 fi
 
-echo "host start"
 echo $PWD
 source "${BASH_SOURCE%/*}/gcc_manual_install.sh"
-echo "host end"
