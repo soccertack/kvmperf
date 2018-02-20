@@ -26,7 +26,7 @@ wait_for_prompt()
 child.sendline('./env.py -a')
 wait_for_prompt()
 
-child.sendline('sudo ./nested.py')
+child.sendline('sudo ./nested.sh')
 wait_for_prompt()
 
 print("nested init done")
