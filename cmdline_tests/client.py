@@ -1,9 +1,9 @@
 import pexpect
 import sys
 import os
-import datetime
 import time
 import socket
+from datetime import datetime
 
 FULL_TH = 50000
 ONE_MORE_TH = 40000
@@ -37,7 +37,12 @@ i = 0
 while 1:
 	i += 1
 
+	
+	print("start a test run")
+	print(str(datetime.now()))
 	score = run_memcached(1)
+	print("end a test run")
+	print(str(datetime.now()))
 
 	if score < FULL_TH and score > ONE_MORE_TH:
 		print ("second chance")
