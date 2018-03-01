@@ -21,6 +21,21 @@ SERVICES="mysql netperf netperf netperf apache2 memcached nginx"
 
 TEST_LIST=( $TESTS )
 
+# trap ctrl-c and call ctrl_c()
+trap ctrl_c INT
+
+TEST_DESC=""
+function cleanup()
+{
+	mv *.txt $TEST_DESC
+}
+
+function ctrl_c()
+{
+        echo "** Trapped CTRL-C"
+	cleanup
+}
+
 function print_target_tests()
 {
 	if [[ $LOCAL == 1 ]]; then
@@ -176,4 +191,12 @@ LOCAL_PATH=$KVMPERF_PATH/localtests
 
 install_tests
 
+echo -n "Enter test name: "
+read TEST_DESC
+mkdir $TEST_DESC
+echo -n "How many times to repeat? "
+read repeat
+
 run_tests
+
+cleanup
