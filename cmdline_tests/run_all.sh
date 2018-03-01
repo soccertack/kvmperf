@@ -21,6 +21,86 @@ SERVICES="mysql netperf netperf netperf apache2 memcached nginx"
 
 TEST_LIST=( $TESTS )
 
+function print_target_tests()
+{
+	if [[ $LOCAL == 1 ]]; then
+		echo "Test Local"
+	fi
+	__i=0
+	for TEST in ${TESTS[@]}; do
+		if [[ ${TEST_ARRAY[$__i]} == 1 ]]; then
+			echo "Test "${TEST_LIST[$__i]}
+		fi
+		__i=$(($__i+1))
+	done
+}
+
+function setup_ip_kvmpath()
+{
+	echo "TEST LEVEL: $TEST_LEVEL"
+	if [ $TEST_LEVEL == "L2" ] ; then
+		TARGET_IP=$L2_IP
+		KVMPERF_PATH="/root/kvmperf"
+	elif [ $TEST_LEVEL == "L2-PP" ] ; then
+		TARGET_IP=$L2_PP_IP
+		KVMPERF_PATH="/root/kvmperf"
+	elif [ $TEST_LEVEL == "L1" ] ; then
+		TARGET_IP=$L1_IP
+		KVMPERF_PATH="/root/kvmperf"
+	elif [ $TEST_LEVEL == "L0" ] ; then
+		TARGET_IP=$L0_IP
+		KVMPERF_PATH="/users/$ME/kvmperf"
+		TEST_USER=$ME
+	else
+		echo "Usage: ./run_all [L0|L1|l2]"
+		exit
+	fi
+	echo "TARGET IP: $TARGET_IP"
+}
+
+function install_tests()
+{
+	__i=0
+	for TEST in ${TESTS[@]}; do
+		if [[ ${TEST_ARRAY[$__i]} == 1 ]]; then
+			PKG=$(echo "$TEST" | cut -d- -f1)
+			sudo ./${PKG}_install.sh
+			ssh $TEST_USER@$TARGET_IP "sudo ${CMD_PATH}/${PKG}_install.sh"
+		fi
+		__i=$(($__i+1))
+	done
+
+	# Allow memcached and mysql to get requests from servers
+	ssh $TEST_USER@$TARGET_IP "sudo sed -i 's/^-l/#-l/' /etc/memcached.conf"
+	ssh $TEST_USER@$TARGET_IP "sudo sed -i 's/^bind/#bind/' /etc/mysql/my.cnf"
+}
+
+function run_tests()
+{
+	# Run local tests
+	if [[ $LOCAL == 1 ]]; then
+		ssh $TEST_USER@$TARGET_IP "pushd ${LOCAL_PATH};rm *.txt"
+		ssh $TEST_USER@$TARGET_IP "pushd ${LOCAL_PATH};sudo ./run_all.sh 0 3 0 10"
+	fi
+
+	# Run tests
+	__i=0
+	for TEST in ${TESTS[@]}; do
+		if [[ ${TEST_ARRAY[$__i]} == 1 ]]; then
+			# Commands for mysql is a bit different from others.
+			if [[ $__i == 0 ]]; then
+				./mysql.sh run $TARGET_IP $TEST_USER $CMD_PATH
+			else
+				ssh $TEST_USER@$TARGET_IP "sudo service ${SERVICES[$__i]} start"
+				./$TEST.sh $TARGET_IP
+				ssh $TEST_USER@$TARGET_IP "sudo service ${SERVICES[$__i]} stop"
+			fi
+		fi
+		__i=$(($__i+1))
+	done
+}
+
+# Init TEST_ARRAY
 __i=0
 for TEST in ${TESTS[@]}; do
 	TEST_ARRAY[$__i]=0
@@ -78,84 +158,22 @@ show_tests() {
 
 while :
 do
+	# This is an inline function, and it has 'break' in it.
 	show_tests
 done
 
-if [[ $LOCAL == 1 ]]; then
-	echo "Test Local"
-fi
-__i=0
-for TEST in ${TESTS[@]}; do
-	if [[ ${TEST_ARRAY[$__i]} == 1 ]]; then
-		echo "Test "${TEST_LIST[$__i]}
-	fi
-	__i=$(($__i+1))
-done
+print_target_tests
 
-echo "TEST LEVEL: $TEST_LEVEL"
-if [ $TEST_LEVEL == "L2" ] ; then
-	TARGET_IP=$L2_IP
-	KVMPERF_PATH="/root/kvmperf"
-elif [ $TEST_LEVEL == "L2-PP" ] ; then
-	TARGET_IP=$L2_PP_IP
-	KVMPERF_PATH="/root/kvmperf"
-elif [ $TEST_LEVEL == "L1" ] ; then
-	TARGET_IP=$L1_IP
-	KVMPERF_PATH="/root/kvmperf"
-elif [ $TEST_LEVEL == "L0" ] ; then
-	TARGET_IP=$L0_IP
-	KVMPERF_PATH="/users/$ME/kvmperf"
-	TEST_USER=$ME
-else
-	echo "Usage: ./run_all [L0|L1|l2]"
-	exit
-fi
-echo "TARGET IP: $TARGET_IP"
+setup_ip_kvmpath
 
-echo "Make sure that you consumed memory!"
 #TODO: ask before delete
 sudo rm *.txt
-
 
 TESTS=( $TESTS )
 SERVICES=( $SERVICES )
 CMD_PATH=$KVMPERF_PATH/cmdline_tests
 LOCAL_PATH=$KVMPERF_PATH/localtests
 
-# Run local tests
-if [[ $LOCAL == 1 ]]; then
-	ssh $TEST_USER@$TARGET_IP "pushd ${LOCAL_PATH};rm *.txt"
-	ssh $TEST_USER@$TARGET_IP "pushd ${LOCAL_PATH};sudo ./run_all.sh 0 3 0 10"
-fi
+install_tests
 
-# Prepare tests
-__i=0
-for TEST in ${TESTS[@]}; do
-	if [[ ${TEST_ARRAY[$__i]} == 1 ]]; then
-		PKG=$(echo "$TEST" | cut -d- -f1)
-		sudo ./${PKG}_install.sh
-		ssh $TEST_USER@$TARGET_IP "sudo ${CMD_PATH}/${PKG}_install.sh"
-	fi
-	__i=$(($__i+1))
-done
-
-# Allow memcached and mysql to get requests from servers
-ssh $TEST_USER@$TARGET_IP "sudo sed -i 's/^-l/#-l/' /etc/memcached.conf"
-ssh $TEST_USER@$TARGET_IP "sudo sed -i 's/^bind/#bind/' /etc/mysql/my.cnf"
-
-# Run tests
-__i=0
-for TEST in ${TESTS[@]}; do
-	if [[ ${TEST_ARRAY[$__i]} == 1 ]]; then
-		# Commands for mysql is a bit different from others.
-		if [[ $__i == 0 ]]; then
-			./mysql.sh run $TARGET_IP $TEST_USER $CMD_PATH
-		else
-			ssh $TEST_USER@$TARGET_IP "sudo service ${SERVICES[$__i]} start"
-			./$TEST.sh $TARGET_IP
-			ssh $TEST_USER@$TARGET_IP "sudo service ${SERVICES[$__i]} stop"
-		fi
-	fi
-	__i=$(($__i+1))
-done
-
+run_tests
