@@ -8,7 +8,7 @@ TEST_QEMU="2.11.0"
 
 # L0, L1 or L2
 TEST_LEVEL=$1
-USER=jintackl
+USER=root
 
 MACHINE=`uname -m`
 KERNEL=`uname -r`
