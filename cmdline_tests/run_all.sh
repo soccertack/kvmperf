@@ -25,15 +25,15 @@ TEST_LIST=( $TESTS )
 trap ctrl_c INT
 
 TEST_DESC=""
-function cleanup()
+function move_results()
 {
-	mv *.txt $TEST_DESC
+	mv *.txt $1
 }
 
 function ctrl_c()
 {
         echo "** Trapped CTRL-C"
-	cleanup
+	move_results $TEST_DESC/abort
 }
 
 function print_target_tests()
@@ -197,6 +197,8 @@ mkdir $TEST_DESC
 echo -n "How many times to repeat? "
 read repeat
 
-run_tests
-
-cleanup
+for i in `seq 1 $repeat`; do
+	mkdir $TEST_DESC/$i
+	run_tests
+	move_results $TEST_DESC/$i
+done
