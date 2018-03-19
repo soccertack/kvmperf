@@ -28,7 +28,7 @@ def boot_nvm():
 		child.sendline('./run.sh')
 
 	        child.expect('L2.*$', timeout=60)
-		time.sleep(2)
+		time.sleep(10)
 		return 0
 	except pexpect.TIMEOUT:
 		return 1
@@ -41,7 +41,7 @@ child.sendline('')
 child.expect('kvm-node.*')
 
 i = 0
-send_msg("Reboot test started")
+send_msg("Reboot-test-started")
 while True:
 	print("Restart..%dth" % (i))
 	print(str(datetime.now()))
@@ -49,7 +49,7 @@ while True:
 	if ret:
 		msg = "Timeout! Quit testing. We've rebooted %d times" % (i)
 		print(msg)
-		send_msg(msg)
+		send_msg("Reboot-test-failed")
 		break
 	
 	i += 1
