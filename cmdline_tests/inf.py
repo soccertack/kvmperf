@@ -13,7 +13,7 @@ def send_msg(msg):
 	experiment_name=""
 	if len(sys.argv) > 1:
 		experiment_name = sys.argv[1]
-	msg_send_cmd="ssh jintack@128.59.19.13 '/home/jintack/send_tg.sh [%s]%s'" % (experiment_name, msg)
+	msg_send_cmd="ssh jintack@128.59.18.193 '/home/jintack/send_tg.sh [%s]%s'" % (experiment_name, msg)
 	os.system(msg_send_cmd)
 
 
