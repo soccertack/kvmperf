@@ -2,7 +2,6 @@
 
 #########
 TEST_KERNEL="4.15.0"
-TEST_KERNEL_ARM="4.15.0+"
 TEST_QEMU="2.11.0"
 #########
 
@@ -20,8 +19,8 @@ if [[ "$MACHINE" == "x86_64" ]]; then
 		L0_KERNEL=$TEST_KERNEL
 		L1_KERNEL=$TEST_KERNEL
 	else
-		L0_KERNEL=$TEST_KERNEL_ARM
-		L1_KERNEL=$TEST_KERNEL_ARM
+		L0_KERNEL=$TEST_KERNEL
+		L1_KERNEL=$TEST_KERNEL
 fi
 
 QEMU_CMD_x86='/srv/vm/qemu/x86_64-softmmu/qemu-system-x86_64 --version'
