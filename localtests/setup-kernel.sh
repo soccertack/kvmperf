@@ -10,17 +10,17 @@ function kernel_tar()
 	if [[ -d $KERNEL ]]; then
 		echo "$KERNEL is here"
 	else
+		pushd /tmp
 		if [[ -f $KERNEL_TAR ]]; then
 			echo "$KERNEL_TAR is here"
 		else
 			echo "$KERNEL_TAR is not here"
-			pushd /tmp
 			wget https://www.kernel.org/pub/linux/kernel/v3.x/linux-3.17.tar.gz
 			sync
-			popd
 		fi
 		echo "Extracing kernel tar..."
 		tar xfz $KERNEL_TAR
+		popd
 	fi
 }
 
