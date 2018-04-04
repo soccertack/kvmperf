@@ -11,6 +11,9 @@ def print_result_test(path, testname):
 		for dirname in sorted(dirs, key=int):
 			filename = path + "/" + dirname + "/" + testname + ".txt"
 
+#			if dirname == "7":
+#				break
+
 			if (testname in has_header):
 				new_data = np.loadtxt(filename, skiprows=1)
 			else:

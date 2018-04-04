@@ -195,8 +195,8 @@ if [[ -n $TEST_DESC ]]; then
 	read repeat
 
 	for i in `seq 1 $repeat`; do
-		mkdir $TEST_DESC/$i
 		run_tests
+		mkdir $TEST_DESC/$i
 		move_results $TEST_DESC/$i
 	done
 else
