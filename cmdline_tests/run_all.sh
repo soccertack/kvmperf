@@ -9,7 +9,6 @@ L1_IP="10.10.1.100"
 L2_IP="10.10.1.101"
 #PP: PV-Passthrough
 L2_PP_IP="10.10.1.201"
-ME=jintackl
 TEST_USER="root"
 
 LOCAL=0
@@ -52,20 +51,17 @@ function print_target_tests()
 
 function setup_ip_kvmpath()
 {
+	KVMPERF_PATH="/root/kvmperf"
+
 	echo "TEST LEVEL: $TEST_LEVEL"
 	if [ $TEST_LEVEL == "L2" ] ; then
 		TARGET_IP=$L2_IP
-		KVMPERF_PATH="/root/kvmperf"
 	elif [ $TEST_LEVEL == "L2-PP" ] ; then
 		TARGET_IP=$L2_PP_IP
-		KVMPERF_PATH="/root/kvmperf"
 	elif [ $TEST_LEVEL == "L1" ] ; then
 		TARGET_IP=$L1_IP
-		KVMPERF_PATH="/root/kvmperf"
 	elif [ $TEST_LEVEL == "L0" ] ; then
 		TARGET_IP=$L0_IP
-		KVMPERF_PATH="/users/$ME/kvmperf"
-		TEST_USER=$ME
 	else
 		echo "Usage: ./run_all [L0|L1|l2]"
 		exit
