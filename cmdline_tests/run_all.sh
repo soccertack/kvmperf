@@ -189,12 +189,16 @@ install_tests
 
 echo -n "Enter test name: "
 read TEST_DESC
-mkdir $TEST_DESC
-echo -n "How many times to repeat? "
-read repeat
+if [[ -n $TEST_DESC ]]; then
+	mkdir $TEST_DESC
+	echo -n "How many times to repeat? "
+	read repeat
 
-for i in `seq 1 $repeat`; do
-	mkdir $TEST_DESC/$i
+	for i in `seq 1 $repeat`; do
+		mkdir $TEST_DESC/$i
+		run_tests
+		move_results $TEST_DESC/$i
+	done
+else
 	run_tests
-	move_results $TEST_DESC/$i
-done
+fi
