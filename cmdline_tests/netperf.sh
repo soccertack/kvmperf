@@ -16,7 +16,7 @@ for _TEST in TCP_STREAM TCP_RR TCP_MAERTS ; do
 		if [[ "$_TEST" == "TCP_STREAM" ]]; then
 			netperf -T ,2 -H $SRV -t $_TEST | tee >(cat > /tmp/netperf_single.txt)
 		elif [[ "$_TEST" == "TCP_MAERTS" ]]; then
-			netperf -T 2, -H $SRV -t $_TEST | tee >(cat > /tmp/netperf_single.txt)
+			netperf -T 2,2 -H $SRV -t $_TEST | tee >(cat > /tmp/netperf_single.txt)
 		else
 			netperf -H $SRV -t $_TEST | tee >(cat > /tmp/netperf_single.txt)
 		fi
