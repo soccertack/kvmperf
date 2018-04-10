@@ -14,7 +14,9 @@ def print_result_test(path, testname):
 #			if dirname == "7":
 #				break
 
-			if (testname in has_header):
+			if (testname in has_header_2):
+				new_data = np.loadtxt(filename, skiprows=2)
+			elif (testname in has_header):
 				new_data = np.loadtxt(filename, skiprows=1)
 			else:
 				new_data = np.loadtxt(filename)
@@ -48,6 +50,7 @@ if len(sys.argv) < 2:
 
 #Add test names if it has a header in the result text file
 has_header = ["memcached", "netperf-rr", "netperf-stream", "netperf-maerts"]
+has_header_2 = ["mysql"]
 path = sys.argv[1]
 
 if (len(sys.argv) > 2):
