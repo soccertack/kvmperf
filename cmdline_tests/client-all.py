@@ -19,7 +19,7 @@ def run_apache():
 	os.system("./apache.sh 10.10.1.101")
 	os.system('ssh root@10.10.1.101 "sudo service apache2 stop"')
 
-def run_memcached(n_run, out_filename = "memcached.txt"):
+def run_memcached(n_run = 40, out_filename = "memcached.txt"):
 	os.system('ssh root@10.10.1.101 "sudo service memcached start"')
 	time.sleep(1)
 	os.system("./memcached.sh 10.10.1.101 %d %s" % (n_run, out_filename))
