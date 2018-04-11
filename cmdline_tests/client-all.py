@@ -6,6 +6,7 @@ import os
 import time
 import socket
 from datetime import datetime
+import argparse
 
 def run_stream():
 	os.system('ssh root@10.10.1.101 "sudo service netperf start"')
@@ -30,40 +31,74 @@ def move_data(experiment_name, i):
 	os.system("mv *.txt %s/%d" % (experiment_name, i))
 	return
 
-print("Trying to connect to the server")
-clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-clientsocket.connect(('10.10.1.2', 8889))
-print("Connected")
-
-if len(sys.argv) > 1:
-	experiment_name = sys.argv[1]
-else:
-	experiment_name = "default"
-
-i = 0
-
-while 1:
-	i += 1
-
+def run_tests():
 	print("start a test run")
 	print(str(datetime.now()))
 
 	run_stream()
+	run_memcached()
 
 	print("end a test run")
 	print(str(datetime.now()))
 
-	move_data(experiment_name, i)
-
-	clientsocket.send('reboot')
-
-	while True:
-		print("Waiting to get a reboot message from the server")
-		buf = clientsocket.recv(64)
-		if len(buf) > 0:
-			print buf
-			if buf == "ready":
-				print "ready is received"
-				break
+def connect_to_server():
+	print("Trying to connect to the server")
+	clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	clientsocket.connect(('10.10.1.2', 8889))
+	print("Connected")
+	return clientsocket
 
 
+def main():
+	parser = argparse.ArgumentParser()
+	parser.add_argument("-e", "--exp", help="setup experiment name")
+	parser.add_argument("-i", "--iterations", help="setup per-reboot iterations")
+	parser.add_argument("-r", "--reboot", help="setup number of reboot")
+	args = parser.parse_args()
+
+	experiment_name = "default"
+	if args.exp:
+		experiment_name = args.exp
+
+	reboot = 0 
+	if args.reboot:
+		reboot = int(args.reboot)
+
+	iterations = 1 
+	if args.iterations:
+		iterations = int(args.iterations)
+
+	print ('Name: %s, iterations: %d, reboot: %d' % (experiment_name, iterations, reboot))
+
+	reboot_cnt = 0
+
+	clientsocket = connect_to_server()
+
+	while 1:
+		# We want to start from idx 1
+		start = reboot_cnt * iterations + 1
+		end = start + iterations
+		for i in range(start, end):
+			run_tests()
+			move_data(experiment_name, i)
+
+
+		if reboot <= reboot_cnt :
+			break
+
+		clientsocket.send('reboot')
+
+		while True:
+			print("Waiting to get a reboot message from the server")
+			buf = clientsocket.recv(64)
+			if len(buf) > 0:
+				print buf
+				if buf == "ready":
+					print "ready is received"
+					break
+		
+		reboot_cnt += 1
+
+
+if __name__ == '__main__':
+	main()
