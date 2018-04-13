@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 SRV=$1
@@ -19,5 +18,3 @@ for i in `seq 1 $REPTS`; do
 		exit 1
 	fi
 done
-
-
