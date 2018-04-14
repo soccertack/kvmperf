@@ -8,6 +8,9 @@ import socket
 from datetime import datetime
 import argparse
 
+def run_mysql():
+	os.system("./mysql.sh run 10.10.1.101 root /root/kvmperf/cmdline_tests")
+
 def run_nginx():
 	os.system('ssh root@10.10.1.101 "sudo service nginx start"')
 	time.sleep(1)
@@ -61,6 +64,7 @@ def run_tests():
 	print("start a test run")
 	print(str(datetime.now()))
 
+	run_mysql()
 	run_stream()
 	run_maerts()
 	run_rr()
