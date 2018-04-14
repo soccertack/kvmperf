@@ -1,4 +1,4 @@
-#/usr/bin/python
+#!/usr/bin/python
 
 import pexpect
 import sys
@@ -8,11 +8,37 @@ import socket
 from datetime import datetime
 import argparse
 
-def run_stream():
+def run_nginx():
+	os.system('ssh root@10.10.1.101 "sudo service nginx start"')
+	time.sleep(1)
+	os.system("./nginx.sh 10.10.1.101")
+	os.system('ssh root@10.10.1.101 "sudo service nginx stop"')
+
+def run_netperf(name):
+
+	filename = "netperf-" + name + ".txt"
+	if name == "stream":
+		testname = "TCP_STREAM"
+	elif name == "maerts":
+		testname = "TCP_MAERTS"
+	elif name == "rr":
+		testname = "TCP_RR"
+	else:
+		return
+	
 	os.system('ssh root@10.10.1.101 "sudo service netperf start"')
 	time.sleep(1)
-	os.system("./netperf.sh 10.10.1.101 TCP_STREAM netperf-stream.txt")
+	os.system("./netperf.sh 10.10.1.101 %s %s" % (testname, filename))
 	os.system('ssh root@10.10.1.101 "sudo service netperf stop"')
+
+def run_stream():
+	run_netperf("stream")
+
+def run_maerts():
+	run_netperf("maerts")
+
+def run_rr():
+	run_netperf("rr")
 
 def run_apache():
 	os.system('ssh root@10.10.1.101 "sudo service apache2 start"')
@@ -36,7 +62,11 @@ def run_tests():
 	print(str(datetime.now()))
 
 	run_stream()
+	run_maerts()
+	run_rr()
 	run_memcached()
+	run_apache()
+	run_nginx()
 
 	print("end a test run")
 	print(str(datetime.now()))
@@ -51,14 +81,14 @@ def connect_to_server():
 
 def main():
 	parser = argparse.ArgumentParser()
-	parser.add_argument("-e", "--exp", help="setup experiment name")
+	parser.add_argument("-n", "--name", help="setup experiment name")
 	parser.add_argument("-i", "--iterations", help="setup per-reboot iterations")
 	parser.add_argument("-r", "--reboot", help="setup number of reboot")
 	args = parser.parse_args()
 
 	experiment_name = "default"
-	if args.exp:
-		experiment_name = args.exp
+	if args.name:
+		experiment_name = args.name
 
 	reboot = 0 
 	if args.reboot:
@@ -69,6 +99,8 @@ def main():
 		iterations = int(args.iterations)
 
 	print ('Name: %s, iterations: %d, reboot: %d' % (experiment_name, iterations, reboot))
+
+	os.system("rm *.txt")
 
 	reboot_cnt = 0
 
@@ -81,7 +113,6 @@ def main():
 		for i in range(start, end):
 			run_tests()
 			move_data(experiment_name, i)
-
 
 		if reboot <= reboot_cnt :
 			break
