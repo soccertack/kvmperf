@@ -108,7 +108,7 @@ def main():
 
 	virt_level = 2
 	ip_addr = L2_IP
-	if int(args.level) == 1:
+	if args.level and int(args.level) == 1:
 		virt_level = 1
 		ip_addr = L1_IP
 
