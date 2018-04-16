@@ -11,6 +11,11 @@ import argparse
 L1_IP="10.10.1.100"
 L2_IP="10.10.1.101"
 
+
+def setup_experiments(ip_addr):
+	setup_nginx(ip_addr)
+	setup_apache(ip_addr)
+
 def run_mysql(ip_addr):
 	os.system("./mysql.sh run %s root /root/kvmperf/cmdline_tests" % ip_addr)
 
@@ -21,9 +26,14 @@ def setup_nginx(ip_addr):
 	nginx_rm_access_log = "rm -f /var/log/nginx/access.log*"
 	os.system('ssh root@%s "%s"' % (ip_addr, nginx_rm_access_log))
 
-def run_nginx(ip_addr):
-	setup_nginx(ip_addr)
+def setup_apache(ip_addr):
+	apache_cfg_cmd = "find /etc/apache2/sites-enabled/* -exec sed -i 's/#*[Cc]ustom[Ll]og/#CustomLog/g' {} \;"
+	os.system('ssh root@%s "%s"' % (ip_addr, apache_cfg_cmd))
 
+	apache_rm_access_log = "rm -f /var/log/apache2/access.log*"
+	os.system('ssh root@%s "%s"' % (ip_addr, apache_rm_access_log))
+
+def run_nginx(ip_addr):
 	os.system('ssh root@%s "sudo service nginx start"' % ip_addr)
 	time.sleep(1)
 	os.system("./nginx.sh %s" % ip_addr)
@@ -55,16 +65,7 @@ def run_maerts(ip_addr):
 def run_rr(ip_addr):
 	run_netperf("rr", ip_addr)
 
-def setup_apache(ip_addr):
-	apache_cfg_cmd = "find /etc/apache2/sites-enabled/* -exec sed -i 's/#*[Cc]ustom[Ll]og/#CustomLog/g' {} \;"
-	os.system('ssh root@%s "%s"' % (ip_addr, apache_cfg_cmd))
-
-	apache_rm_access_log = "rm -f /var/log/apache2/access.log*"
-	os.system('ssh root@%s "%s"' % (ip_addr, apache_rm_access_log))
-
 def run_apache(ip_addr):
-	setup_apache(ip_addr)
-
 	os.system('ssh root@%s "sudo service apache2 start"' % ip_addr)
 	time.sleep(1)
 	os.system("./apache.sh %s" % ip_addr)
@@ -137,6 +138,8 @@ def main():
 	reboot_cnt = 0
 
 	clientsocket = connect_to_server()
+
+	setup_experiments(ip_addr)
 
 	while 1:
 		# We want to start from idx 1
