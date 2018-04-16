@@ -21,13 +21,26 @@ def print_result_test(path, testname):
 			else:
 				new_data = np.loadtxt(filename)
 
-			iterations = new_data.shape[0]
+			try:
+				iterations = new_data.shape[0]
+			except IndexError:
+				print ("%s %s index error. Skip." % (testname, dirname))
+				return
+
 			new_data.shape = (iterations, 1)
 
 			if data.size == 0:
 				data = new_data
 			else:
-				data = np.concatenate((data, new_data), axis=1)
+				if iterations != data.shape[0]:
+					print ("%s %s has %d iterations while it is supposed to have %d. Skip." % (testname, dirname, iterations, data.shape[0]))
+					continue
+
+				try:
+					data = np.concatenate((data, new_data), axis=1)
+				except ValueError:
+					print ("%s %s value error. Skip." % (testname, dirname))
+					continue
 
 	print ("----------" + testname + "----------")
 	print ('\n'.join(' '.join(str(cell) for cell in row) for row in data))
@@ -61,5 +74,6 @@ else:
 	test_name_list = probe_test_names(path)
 
 for test in test_name_list:
+	print test
 	print_result_test(path, test)
 
