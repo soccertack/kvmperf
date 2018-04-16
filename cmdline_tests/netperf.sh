@@ -14,11 +14,11 @@ for _TEST in TCP_STREAM TCP_RR TCP_MAERTS ; do
 	echo $_TEST >> $RESULTS
 	for i in `seq 1 $REPTS`; do
 		if [[ "$_TEST" == "TCP_STREAM" ]]; then
-			netperf -N -T ,2 -H $SRV -t $_TEST | tee >(cat > /tmp/netperf_single.txt)
+			netperf -T ,2 -H $SRV -t $_TEST | tee >(cat > /tmp/netperf_single.txt)
 		elif [[ "$_TEST" == "TCP_MAERTS" ]]; then
-			netperf -N -T 2,2 -H $SRV -t $_TEST | tee >(cat > /tmp/netperf_single.txt)
+			netperf -T 2,2 -H $SRV -t $_TEST | tee >(cat > /tmp/netperf_single.txt)
 		else
-			netperf -N -H $SRV -t $_TEST | tee >(cat > /tmp/netperf_single.txt)
+			netperf -H $SRV -t $_TEST | tee >(cat > /tmp/netperf_single.txt)
 		fi
 
 		if [[ $? == 0 ]]; then
