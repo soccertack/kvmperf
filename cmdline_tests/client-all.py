@@ -165,6 +165,7 @@ def main():
 		
 		reboot_cnt += 1
 
+	clientsocket.send('halt')
 
 if __name__ == '__main__':
 	main()
