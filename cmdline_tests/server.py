@@ -36,14 +36,16 @@ def boot_nvm(pvpassthrough, level):
 	pin_vcpus(level)
 	time.sleep(2)
 
-def reboot(pvpassthrough, level):
-	
+def halt(pvpassthrough, level):
 	if level > 1:
 		os.system('ssh root@10.10.1.101 "halt -p"')
 		child.expect('L1.*$')
 
 	os.system('ssh root@10.10.1.100 "halt -p"')
 	child.expect('kvm-node.*')
+
+def reboot(pvpassthrough, level):
+	halt(pvpassthrough, level)
 	boot_nvm(pvpassthrough, level)
 
 parser = argparse.ArgumentParser()
@@ -80,3 +82,6 @@ while True:
 	if buf == "reboot":
 		reboot(pvpassthrough, level)
 		connection.send("ready")
+	elif buf == "halt"
+		halt(pvpassthrough, level)
+		break;
