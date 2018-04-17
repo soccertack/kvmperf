@@ -82,6 +82,6 @@ while True:
 	if buf == "reboot":
 		reboot(pvpassthrough, level)
 		connection.send("ready")
-	elif buf == "halt"
+	elif buf == "halt":
 		halt(pvpassthrough, level)
 		break;
