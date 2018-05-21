@@ -13,30 +13,43 @@ def pin_vcpus(level):
 	os.system('cd /srv/vm/qemu/scripts/qmp/ && sudo ./pin_vcpus.sh && cd -')
 	if level > 1:
 		os.system('ssh root@10.10.1.100 "cd vm/qemu/scripts/qmp/ && ./pin_vcpus.sh"')
+	if level > 2:
+		os.system('ssh root@10.10.1.101 "cd vm/qemu/scripts/qmp/ && ./pin_vcpus.sh"')
 	print ("vcpu is pinned")
 
 def boot_nvm(pvpassthrough, level):
 
+	mylevel = 0
 	if pvpassthrough:
-		child.sendline('cd /srv/vm && ./run-guest-smmu.sh')
+		child.sendline('cd /srv/vm && ./run-guest-viommu.sh')
 	else:
 		child.sendline('cd /srv/vm && ./run-guest.sh')
 
         child.expect('L1.*$')
+	mylevel = 1
 
-	if level > 1:
+	while (mylevel < level):
+		mylevel += 1
+
 		if pvpassthrough:
-			child.sendline('cd ~/vm && ./run-guest-vfio.sh')
+			if mylevel == level:
+				child.sendline('cd ~/vm && ./run-guest-vfio.sh')
+			else:
+				child.sendline('cd ~/vm && ./run-guest-vfio-viommu.sh')
 		else:
 			child.sendline('cd ~/vm && ./run-guest.sh')
 
-		child.expect('L2.*$')
+		child.expect('L' + str(mylevel) + '.*$')
 
 	time.sleep(2)
 	pin_vcpus(level)
 	time.sleep(2)
 
 def halt(pvpassthrough, level):
+	if level > 2:
+		os.system('ssh root@10.10.1.102 "halt -p"')
+		child.expect('L2.*$')
+
 	if level > 1:
 		os.system('ssh root@10.10.1.101 "halt -p"')
 		child.expect('L1.*$')
