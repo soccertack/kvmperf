@@ -83,12 +83,21 @@ child.expect('kvm-node.*')
 boot_nvm(pvpassthrough, level)
 
 serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-serversocket.bind(('', 8889))
-serversocket.listen(1) # become a server socket.
 
+print ("Try to bind...")
+serversocket.bind(('', 8889))
+print ("Done.")
+
+print ("Try to listen...")
+serversocket.listen(1) # become a server socket.
+print ("Done.")
+
+print ("Try to accept...")
 connection, address = serversocket.accept()
+print ("Done.")
 
 while True:
+    print ("Waiting for incoming messages.")
     buf = connection.recv(64)
     if len(buf) > 0:
         print buf
