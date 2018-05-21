@@ -10,6 +10,7 @@ import argparse
 
 L1_IP="10.10.1.100"
 L2_IP="10.10.1.101"
+L3_IP="10.10.1.102"
 
 
 def setup_experiments(ip_addr):
@@ -130,6 +131,9 @@ def main():
 	if args.level and int(args.level) == 1:
 		virt_level = 1
 		ip_addr = L1_IP
+	if args.level and int(args.level) == 3:
+		virt_level = 3
+		ip_addr = L3_IP
 
 	print ('Name: %s, iterations: %d, reboot: %d' % (experiment_name, iterations, reboot))
 
