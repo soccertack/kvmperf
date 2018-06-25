@@ -85,7 +85,11 @@ boot_nvm(pvpassthrough, level)
 serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 print ("Try to bind...")
-serversocket.bind(('', 8889))
+try:
+	serversocket.bind(('', 8889))
+except socket.error:
+	halt(pvpassthrough, level)
+	sys.exit(0)
 print ("Done.")
 
 print ("Try to listen...")
