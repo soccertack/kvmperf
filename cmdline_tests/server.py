@@ -17,13 +17,16 @@ def pin_vcpus(level):
 		os.system('ssh root@10.10.1.101 "cd vm/qemu/scripts/qmp/ && ./pin_vcpus.sh"')
 	print ("vcpu is pinned")
 
-def boot_nvm(pvpassthrough, level):
+def boot_nvm(iovirt, level):
 
 	mylevel = 0
-	if pvpassthrough:
+	if iovirt == "vp":
 		child.sendline('cd /srv/vm && ./run-guest-viommu.sh')
-	else:
+	elif iovirt == "pv":
 		child.sendline('cd /srv/vm && ./run-guest.sh')
+	elif iovirt == "pt":
+		child.sendline('cd /srv/vm && ./run-guest-vfio.sh')
+	#TODO: if we want to support recursive pass-through, we should run vfio-viommu here..
 
         child.expect('L1.*$')
 	mylevel = 1
@@ -31,7 +34,8 @@ def boot_nvm(pvpassthrough, level):
 	while (mylevel < level):
 		mylevel += 1
 
-		if pvpassthrough:
+		#TODO: take care of pt case
+		if iovirt == "vp":
 			if mylevel == level:
 				child.sendline('cd ~/vm && ./run-guest-vfio.sh')
 			else:
@@ -45,7 +49,7 @@ def boot_nvm(pvpassthrough, level):
 	pin_vcpus(level)
 	time.sleep(2)
 
-def halt(pvpassthrough, level):
+def halt(level):
 	if level > 2:
 		os.system('ssh root@10.10.1.102 "halt -p"')
 		child.expect('L2.*$')
@@ -57,22 +61,24 @@ def halt(pvpassthrough, level):
 	os.system('ssh root@10.10.1.100 "halt -p"')
 	child.expect('kvm-node.*')
 
-def reboot(pvpassthrough, level):
-	halt(pvpassthrough, level)
-	boot_nvm(pvpassthrough, level)
+def reboot(iovirt, level):
+	halt(level)
+	boot_nvm(iovirt, level)
 
-parser = argparse.ArgumentParser()
-parser.add_argument("-p", "--pvpassthrough", help="enable pv-passthrough", action='store_true')
-parser.add_argument("-l", "--level", help="set virtualization level")
-args = parser.parse_args()
 
-pvpassthrough = False
-if args.pvpassthrough:
-	pvpassthrough = True
+level  = int(raw_input("Enter virtualization level [2]: ") or "2")
+if level < 1:
+	print ("We don't (need to) support L0")
+	sys.exit(0)
+if level > 3:
+	print ("Are you sure to run virt level %d?" % level)
+	sleep(5)
 
-level = 2
-if args.level:
-	level = int(args.level)
+# iovirt: pv, pt(pass-through), or vp(virtual-passthough)
+iovirt = raw_input("Enter I/O virtualization level [pv]: ") or "pv"
+if iovirt not in ["pv", "pt", "vp"]:
+	print ("Enter pv, pt, or vp")
+	sys.exit(0)
 
 child = pexpect.spawn('bash')
 child.logfile = sys.stdout
@@ -80,7 +86,7 @@ child.timeout=None
 
 child.sendline('')
 child.expect('kvm-node.*')
-boot_nvm(pvpassthrough, level)
+boot_nvm(iovirt, level)
 
 serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -102,8 +108,8 @@ while True:
     if len(buf) > 0:
         print buf
 	if buf == "reboot":
-		reboot(pvpassthrough, level)
+		reboot(iovirt, level)
 		connection.send("ready")
 	elif buf == "halt":
-		halt(pvpassthrough, level)
+		halt(level)
 		break;
