@@ -94,7 +94,7 @@ print ("Try to bind...")
 try:
 	serversocket.bind(('', 8889))
 except socket.error:
-	halt(pvpassthrough, level)
+	halt(level)
 	sys.exit(0)
 print ("Done.")
 
