@@ -87,12 +87,12 @@ def run_tests(ip_addr):
 	print("start a test run")
 	print(str(datetime.now()))
 
+	run_memcached(ip_addr)
+	run_apache(ip_addr)
+	run_rr(ip_addr)
 	run_mysql(ip_addr)
 	run_stream(ip_addr)
 	run_maerts(ip_addr)
-	run_rr(ip_addr)
-	run_memcached(ip_addr)
-	run_apache(ip_addr)
 	run_nginx(ip_addr)
 
 	print("end a test run")
