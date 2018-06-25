@@ -8,6 +8,7 @@ import socket
 from datetime import datetime
 import argparse
 
+L0_IP="10.10.1.2"
 L1_IP="10.10.1.100"
 L2_IP="10.10.1.101"
 L3_IP="10.10.1.102"
@@ -126,13 +127,12 @@ def main():
 	if args.iterations:
 		iterations = int(args.iterations)
 
-	virt_level = 2
 	ip_addr = L2_IP
+	if args.level and int(args.level) == 0:
+		ip_addr = L0_IP
 	if args.level and int(args.level) == 1:
-		virt_level = 1
 		ip_addr = L1_IP
 	if args.level and int(args.level) == 3:
-		virt_level = 3
 		ip_addr = L3_IP
 
 	print ('Name: %s, iterations: %d, reboot: %d' % (experiment_name, iterations, reboot))
@@ -141,7 +141,9 @@ def main():
 
 	reboot_cnt = 0
 
-	clientsocket = connect_to_server()
+	clientsocket = ""
+	if ip_addr != L0_IP:
+		clientsocket = connect_to_server()
 
 	setup_experiments(ip_addr)
 
@@ -156,6 +158,10 @@ def main():
 		if reboot <= reboot_cnt :
 			break
 
+		# We don't reboot using the script for the L0 case
+		if ip_addr == L0_IP:
+			sys.exit(0)
+
 		clientsocket.send('reboot')
 
 		while True:
@@ -169,7 +175,8 @@ def main():
 		
 		reboot_cnt += 1
 
-	clientsocket.send('halt')
+	if ip_addr != L0_IP:
+		clientsocket.send('halt')
 
 if __name__ == '__main__':
 	main()
