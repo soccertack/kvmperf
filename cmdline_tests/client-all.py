@@ -94,7 +94,7 @@ def run_tests(ip_addr):
 	run_mysql(ip_addr)
 	run_stream(ip_addr)
 	run_maerts(ip_addr)
-	run_nginx(ip_addr)
+#	run_nginx(ip_addr)
 
 	print("end a test run")
 	print(str(datetime.now()))
