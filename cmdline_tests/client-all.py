@@ -8,11 +8,7 @@ import socket
 from datetime import datetime
 import argparse
 
-L0_IP="10.10.1.2"
-L1_IP="10.10.1.100"
-L2_IP="10.10.1.101"
-L3_IP="10.10.1.102"
-
+IP = [ "10.10.1.2", "10.10.1.100", "10.10.1.101", "10.10.1.102" ]
 
 def setup_experiments(ip_addr):
 	setup_nginx(ip_addr)
@@ -109,11 +105,15 @@ def connect_to_server():
 
 def main():
 	parser = argparse.ArgumentParser()
-	parser.add_argument("-l", "--level", help="virt level")
 	parser.add_argument("-n", "--name", help="setup experiment name")
 	parser.add_argument("-i", "--iterations", help="setup per-reboot iterations")
 	parser.add_argument("-r", "--reboot", help="setup number of reboot")
 	args = parser.parse_args()
+
+	level  = int(raw_input("Enter virtualization level [2]: ") or "2")
+	if level > 3:
+		print ("We don't support more than L3")
+		sys.exit(0)
 
 	experiment_name = "default"
 	if args.name:
@@ -127,13 +127,7 @@ def main():
 	if args.iterations:
 		iterations = int(args.iterations)
 
-	ip_addr = L2_IP
-	if args.level and int(args.level) == 0:
-		ip_addr = L0_IP
-	if args.level and int(args.level) == 1:
-		ip_addr = L1_IP
-	if args.level and int(args.level) == 3:
-		ip_addr = L3_IP
+	ip_addr = IP[level]
 
 	print ('Name: %s, iterations: %d, reboot: %d' % (experiment_name, iterations, reboot))
 
@@ -142,7 +136,7 @@ def main():
 	reboot_cnt = 0
 
 	clientsocket = ""
-	if ip_addr != L0_IP:
+	if level != 0:
 		clientsocket = connect_to_server()
 
 	setup_experiments(ip_addr)
@@ -159,7 +153,7 @@ def main():
 			break
 
 		# We don't reboot using the script for the L0 case
-		if ip_addr == L0_IP:
+		if level == 0:
 			sys.exit(0)
 
 		clientsocket.send('reboot')
@@ -175,7 +169,7 @@ def main():
 		
 		reboot_cnt += 1
 
-	if ip_addr != L0_IP:
+	if level != 0:
 		clientsocket.send('halt')
 
 if __name__ == '__main__':
