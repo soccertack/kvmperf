@@ -1,12 +1,20 @@
 APP=${1:-"noapp"}
 ALL_EXITS=$APP-exits-all.txt
 
-exits=(exits io_exits irq_exits halt_exits mmio_exits abc_exits)
+#These are default ones from KVM
+default_exits=(exits io_exits irq_exits halt_exits mmio_exits)
 
-for exit in ${exits[@]}; do
-	declare -a PREV_$exit
-	declare -a CURR_$exit
-done
+# $1: address
+# $2: username
+function init_exits {
+	added_exits=$(ssh $2@$1 "ls /sys/kernel/debug/kvm/ | grep exits_")
+	exits=("${default_exits[@]}" "${added_exits[@]}")
+
+	for exit in ${exits[@]}; do
+		declare -a PREV_$exit
+		declare -a CURR_$exit
+	done
+}
 
 function read_raw {
 	for exit in ${exits[@]}; do
