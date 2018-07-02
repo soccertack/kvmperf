@@ -11,8 +11,12 @@ for _TEST in TCP_STREAM TCP_RR TCP_MAERTS ; do
 	if [[ "$TEST" != "ALL" && "$TEST" != "$_TEST" ]]; then
 		continue
 	fi
+	source exits.sh $_TEST
 	echo $_TEST >> $RESULTS
 	for i in `seq 1 $REPTS`; do
+
+		start_measurement
+
 		if [[ "$_TEST" == "TCP_STREAM" ]]; then
 			netperf -T ,2 -H $SRV -t $_TEST | tee >(cat > /tmp/netperf_single.txt)
 		elif [[ "$_TEST" == "TCP_MAERTS" ]]; then
@@ -20,6 +24,9 @@ for _TEST in TCP_STREAM TCP_RR TCP_MAERTS ; do
 		else
 			netperf -H $SRV -t $_TEST | tee >(cat > /tmp/netperf_single.txt)
 		fi
+
+		end_measurement
+		save_stat
 
 		if [[ $? == 0 ]]; then
 			if [[ "$_TEST" == "TCP_RR" ]]; then

@@ -43,7 +43,9 @@ if [[ "$ACTION" == "prep" ]]; then
 	cleanup
 	prepare
 elif [[ "$ACTION" == "run" ]]; then
-	# Exec
+	source exits.sh mysql
+	start_measurement
+
 	for num_threads in 200; do
 		echo -e "$num_threads threads:\n---" >> $RESULTS
 		for i in `seq 1 $REPTS`; do
@@ -53,6 +55,10 @@ elif [[ "$ACTION" == "run" ]]; then
 		done;
 		echo "" >> $RESULTS
 	done;
+
+	end_measurement
+	save_stat
+
 elif [[ "$ACTION" == "cleanup" ]]; then
 	# We will do a lazy-cleanup.
 	service mysql stop
