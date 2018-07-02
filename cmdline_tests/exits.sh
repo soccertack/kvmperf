@@ -40,7 +40,7 @@ function end_measurement {
 }
 
 function save_exits {
-	echo "<---- exit stats ---->" >> $ALL_EXITS
+	echo "<---- exit stats from $1 ---->" >> $ALL_EXITS
 	for exit in ${exits[@]}; do
 		declare -n curr_ref="CURR_$exit"
 		declare -n prev_ref="PREV_$exit"
