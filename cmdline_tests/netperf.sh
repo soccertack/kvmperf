@@ -13,15 +13,15 @@ for _TEST in TCP_STREAM TCP_RR; do
 	fi
 	echo $_TEST >> $RESULTS
 	source exits.sh $_TEST
-	print_title
+#	print_title
 	for i in `seq 1 $REPTS`; do
-		save_prev 0 10.10.1.2 jintackl
-		save_prev 1 10.10.1.100 root
+		save_prev 0 10.10.1.2 root
+#		save_prev 1 10.10.1.100 root
 		netperf -T ,2 -H $SRV -t $_TEST | tee >(cat > /tmp/netperf_single.txt)
-		save_curr 0 10.10.1.2 jintackl
-		save_curr 1 10.10.1.100 root
+		save_curr 0 10.10.1.2 root
+#		save_curr 1 10.10.1.100 root
 		save_diff 0
-		save_diff 1
+#		save_diff 1
 
 		if [[ $? == 0 ]]; then
 			if [[ "$_TEST" == "TCP_RR" ]]; then
