@@ -11,7 +11,7 @@ RESULTS=apache.txt
 ab=/usr/bin/ab
 CMD="$ab -n $NR_REQUESTS -c 10 http://$SRV/gcc/index.html"
 
-source exits.sh apache L0
+source exits.sh apache
 
 for i in `seq 1 $REPTS`; do
 	start_measurement
