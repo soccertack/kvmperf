@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SRV=$1
-REPTS=${2-50}
+REPTS=${2-1}
 
 echo "Measuring performance of $SRV"
 
