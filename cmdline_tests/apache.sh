@@ -11,8 +11,6 @@ RESULTS=apache.txt
 ab=/usr/bin/ab
 CMD="$ab -n $NR_REQUESTS -c 10 http://$SRV/gcc/index.html"
 source exits.sh apache
-print_title
-init_exits 10.10.1.2 root
 
 service apache2 start
 
