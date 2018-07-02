@@ -1,5 +1,8 @@
 APP=${1:-"noapp"}
 ALL_EXITS=$APP-exits-all.txt
+USER=root
+L0_IP=10.10.1.2
+L1_IP=10.10.1.100
 
 #These are default ones from KVM
 default_exits=(exits io_exits irq_exits halt_exits mmio_exits)
@@ -13,21 +16,31 @@ function print_title {
 
 function read_raw {
 	for exit in ${exits[@]}; do
-		declare -n ref="$4_$exit"
-		ref[$1]=$(ssh $3@$2 "sudo cat /sys/kernel/debug/kvm/$exit")
+		declare -n ref="$1_$exit"
+		ref[$2]=$(ssh $USER@$3 "sudo cat /sys/kernel/debug/kvm/$exit")
 	done
 }
 
-function save_prev {
-	read_raw $1 $2 $3 "PREV"
+function read_stat {
+	if [ "$measure_L0" == 1 ]; then
+		read_raw $1 "L0" $L0_IP
+	fi
+
+	if [ "$measure_L1" == 1 ]; then
+		read_raw $1 "L1" $L1_IP
+	fi
 }
 
-function save_curr {
-	read_raw $1 $2 $3 "CURR"
+function start_measurement {
+	read_stat "PREV"
 }
 
-function save_diff {
-	echo "<---- exit stats ---->"
+function end_measurement {
+	read_stat "CURR"
+}
+
+function save_exits {
+	echo "<---- exit stats ---->" >> $ALL_EXITS
 	for exit in ${exits[@]}; do
 		declare -n curr_ref="CURR_$exit"
 		declare -n prev_ref="PREV_$exit"
@@ -36,7 +49,17 @@ function save_diff {
 			echo "${exit}: $diff" >> $ALL_EXITS
 		fi
 	done
-	echo "<-------------------->"
+	echo "<-------------------->" >> $ALL_EXITS
+}
+
+function save_stat {
+	if [ "$measure_L0" == 1 ]; then
+		save_exits "L0"
+	fi
+
+	if [ "$measure_L1" == 1 ]; then
+		save_exits "L1"
+	fi
 }
 
 # We just get the exit list from L0. We may do so in a function,
@@ -49,3 +72,33 @@ for exit in ${exits[@]}; do
 	declare -a CURR_$exit
 done
 
+# The first argument is for the output file name
+shift 1
+
+while :
+	do
+	case "$1" in
+	  L0)
+	    echo "Mesuare L0"
+	    measure_L0=1
+	    shift 1
+	    ;;
+	  L1)
+	    echo "Mesuare L1"
+	    measure_L1=1
+	    shift 1
+	    ;;
+	  --) # End of all options
+	    shift
+	    break
+	    ;;
+	  -*) # Unknown option
+	    echo "Error: Unknown option: $1" >&2
+	    exit 1
+	    ;;
+	  *) # ?
+	    break
+	    ;;
+	esac
+	echo "Done"
+done
