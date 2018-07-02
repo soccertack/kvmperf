@@ -49,7 +49,7 @@ function save_exits {
 			echo "${exit}: $diff" >> $ALL_EXITS
 		fi
 	done
-	echo "<-------------------->" >> $ALL_EXITS
+	echo "<---------------------------->" >> $ALL_EXITS
 }
 
 function save_stat {
@@ -79,12 +79,12 @@ while :
 	do
 	case "$1" in
 	  L0)
-	    echo "Mesuare L0"
+	    echo "Collect stats from L0"
 	    measure_L0=1
 	    shift 1
 	    ;;
 	  L1)
-	    echo "Mesuare L1"
+	    echo "Collect stats from L1"
 	    measure_L1=1
 	    shift 1
 	    ;;
@@ -100,5 +100,4 @@ while :
 	    break
 	    ;;
 	esac
-	echo "Done"
 done
