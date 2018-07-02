@@ -27,15 +27,16 @@ function save_curr {
 }
 
 function save_diff {
+	echo "<---- exit stats ---->"
 	for exit in ${exits[@]}; do
 		declare -n curr_ref="CURR_$exit"
 		declare -n prev_ref="PREV_$exit"
 		diff=$((curr_ref[$1] - prev_ref[$1]))
-		echo -n "$diff," >> $ALL_EXITS
+		if [ $diff != 0 ]; then
+			echo "${exit}: $diff" >> $ALL_EXITS
+		fi
 	done
-	echo "" >> $ALL_EXITS
-
-	tail -n2 $ALL_EXITS
+	echo "<-------------------->"
 }
 
 # We just get the exit list from L0. We may do so in a function,
@@ -48,4 +49,3 @@ for exit in ${exits[@]}; do
 	declare -a CURR_$exit
 done
 
-print_title
