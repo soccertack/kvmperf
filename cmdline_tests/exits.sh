@@ -1,7 +1,7 @@
 APP=${1:-"noapp"}
 ALL_EXITS=$APP-exits-all.txt
 
-exits=(exits io_exits irq_exits halt_exits mmio_exits abc_exits msr)
+exits=(exits io_exits irq_exits halt_exits mmio_exits abc_exits)
 
 for exit in ${exits[@]}; do
 	declare -a PREV_$exit
