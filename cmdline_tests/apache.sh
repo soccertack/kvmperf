@@ -15,7 +15,9 @@ source exits.sh apache
 
 for i in `seq 1 $REPTS`; do
 	start_measurement
+
 	$CMD | tee >(grep 'Requests per second' | awk '{ print $4 }' >> $RESULTS)
+
 	end_measurement
 	save_stat
 done
