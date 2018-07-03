@@ -23,11 +23,11 @@ function read_raw {
 
 function read_stat {
 	if [ "$measure_L0" == 1 ]; then
-		read_raw $1 "L0" $L0_IP
+		read_raw $1 "0" $L0_IP
 	fi
 
 	if [ "$measure_L1" == 1 ]; then
-		read_raw $1 "L1" $L1_IP
+		read_raw $1 "1" $L1_IP
 	fi
 }
 
@@ -41,10 +41,20 @@ function end_measurement {
 
 function save_exits {
 	echo "<---- exit stats from $1 ---->" >> $ALL_EXITS
+
+	if [ "$1" == "L0" ]; then
+		index=0
+	elif [ "$1" == "L1" ]; then
+		index=1
+	else
+		echo "Wrong argument for save_exits: $1"
+		exit
+	fi
+
 	for exit in ${exits[@]}; do
 		declare -n curr_ref="CURR_$exit"
 		declare -n prev_ref="PREV_$exit"
-		diff=$((curr_ref[$1] - prev_ref[$1]))
+		diff=$((curr_ref[$index] - prev_ref[$index]))
 		if [ $diff != 0 ]; then
 			echo "${exit}: $diff" >> $ALL_EXITS
 		fi
