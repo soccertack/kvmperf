@@ -53,7 +53,8 @@ def probe_test_names(path):
 	for root, dirs, files in os.walk(path + "/1"):
 		for file in files:
 			testname = file.rsplit(".", 1)[0]
-			test_name_list.append(testname)
+			if testname != "":
+				test_name_list.append(testname)
 
 	return test_name_list
 

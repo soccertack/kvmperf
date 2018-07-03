@@ -25,17 +25,18 @@ def boot_nvm(iovirt, level):
 	elif iovirt == "pv":
 		child.sendline('cd /srv/vm && ./run-guest.sh')
 	elif iovirt == "pt":
-		child.sendline('cd /srv/vm && ./run-guest-vfio.sh')
-	#TODO: if we want to support recursive pass-through, we should run vfio-viommu here..
+		if level == 1:
+			child.sendline('cd /srv/vm && ./run-guest-vfio.sh')
+		else:
+			child.sendline('cd /srv/vm && ./run-guest-vfio-viommu.sh')
 
-        child.expect('L1.*$')
+	child.expect('L1.*$')
 	mylevel = 1
 
 	while (mylevel < level):
 		mylevel += 1
 
-		#TODO: take care of pt case
-		if iovirt == "vp":
+		if iovirt == "vp" or iovirt == "pt":
 			if mylevel == level:
 				child.sendline('cd ~/vm && ./run-guest-vfio.sh')
 			else:
