@@ -75,7 +75,11 @@ function save_stat {
 # We just get the exit list from L0. We may do so in a function,
 # but I don't know how to make array variables (PREV_*) global...
 added_exits=$(ssh root@10.10.1.2 "ls /sys/kernel/debug/kvm/ | grep exits_")
-exits=("${default_exits[@]}" "${added_exits[@]}")
+
+# We don't use default exit stats from KVM any more since our framework
+# has the same state
+exits=("${added_exits[@]}")
+#exits=("${default_exits[@]}" "${added_exits[@]}")
 
 for exit in ${exits[@]}; do
 	declare -a PREV_$exit
