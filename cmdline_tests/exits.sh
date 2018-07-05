@@ -67,7 +67,7 @@ function save_exits {
 		declare -n prev_ref="PREV_$exit"
 		diff=$((curr_ref[$index] - prev_ref[$index]))
 		if [ $diff != 0 ]; then
-			echo "${exit}: $diff" >> $ALL_EXITS
+			echo "${exit}, $diff" >> $ALL_EXITS
 		fi
 	done
 	echo "<---------------------------->" >> $ALL_EXITS
