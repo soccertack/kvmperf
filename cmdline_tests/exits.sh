@@ -15,9 +15,20 @@ function print_title {
 }
 
 function read_raw {
+	# Prepare to Read all exit stat at once
+	cmd="ssh $USER@$3 cd /sys/kernel/debug/kvm/ && cat"
+	for exit in ${exits[@]}; do
+		cmd="$cmd $exit"
+	done
+
+	all_exits=$($cmd)
+	all_exits=( $all_exits )
+
+	__i=0
 	for exit in ${exits[@]}; do
 		declare -n ref="$1_$exit"
-		ref[$2]=$(ssh $USER@$3 "sudo cat /sys/kernel/debug/kvm/$exit")
+		ref[$2]=${all_exits[$__i]}
+		__i=$(($__i+1))
 	done
 }
 
