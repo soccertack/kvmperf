@@ -185,10 +185,11 @@ SERVICES=( $SERVICES )
 CMD_PATH=$KVMPERF_PATH/cmdline_tests
 LOCAL_PATH=$KVMPERF_PATH/localtests
 
-install_tests
-
 echo -n "Enter test name: "
 read TEST_DESC
+
+install_tests
+
 if [[ -n $TEST_DESC ]]; then
 	mkdir $TEST_DESC
 	echo -n "How many times to repeat? "
