@@ -102,8 +102,7 @@ def connect_to_server():
 	print("Connected")
 	return clientsocket
 
-
-def main():
+def get_params():
 	level  = int(raw_input("Enter virtualization level [2]: ") or "2")
 	if level > 3:
 		print ("We don't support more than L3")
@@ -116,6 +115,12 @@ def main():
 
 	reboot = (total_iterations / iter_per_reboot) - 1
 	iterations = iter_per_reboot
+
+	return (level, experiment_name, iterations, reboot)
+
+def main():
+
+	(level, experiment_name, iterations, reboot) = get_params()
 
 	ip_addr = IP[level]
 
