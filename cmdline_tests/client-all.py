@@ -10,16 +10,17 @@ import argparse
 from collections import OrderedDict
 
 STATUS_IDX = 0
+FUNC_IDX = 1
 IP = [ "10.10.1.2", "10.10.1.100", "10.10.1.101", "10.10.1.102" ]
 tests = [ "mysql", "nginx", "apache", "netperf-rr", "netperf-stream", "netperf-maerts", "memcached"]
 tests_raw = {
-	"mysql":[0],
-	"nginx":[0],
-	"apache":[0],
-	"netperf-rr":[0],
-	"netperf-stream":[0],
-	"netperf-maerts":[0],
-	"memcached":[0]
+	"mysql":[0, 'run_mysql'],
+	"nginx":[0, 'run_nginx'],
+	"apache":[0, 'run_apache'],
+	"netperf-rr":[0, 'run_rr'],
+	"netperf-stream":[0, 'run_stream'],
+	"netperf-maerts":[0, 'run_maerts'],
+	"memcached":[0, 'run_memcached']
 	}
 
 tests = OrderedDict(sorted(tests_raw.items()))
@@ -95,19 +96,13 @@ def move_data(experiment_name, i):
 	return
 
 def run_tests(ip_addr):
-	print("start a test run")
-	print(str(datetime.now()))
+	print("start one iteration at %s" % str(datetime.now()))
 
-	run_memcached(ip_addr)
-	run_apache(ip_addr)
-	run_rr(ip_addr)
-	run_mysql(ip_addr)
-	run_stream(ip_addr)
-	run_maerts(ip_addr)
-#	run_nginx(ip_addr)
+	for test,val in tests.items():
+		if val[STATUS_IDX] == 1:
+			globals()[val[FUNC_IDX]](ip_addr)
 
-	print("end a test run")
-	print(str(datetime.now()))
+	print("end one iteration at %s " % str(datetime.now()))
 
 def connect_to_server():
 	print("Trying to connect to the server")
