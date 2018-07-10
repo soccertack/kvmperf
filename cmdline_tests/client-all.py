@@ -104,28 +104,18 @@ def connect_to_server():
 
 
 def main():
-	parser = argparse.ArgumentParser()
-	parser.add_argument("-n", "--name", help="setup experiment name")
-	parser.add_argument("-i", "--iterations", help="setup per-reboot iterations")
-	parser.add_argument("-r", "--reboot", help="setup number of reboot")
-	args = parser.parse_args()
-
 	level  = int(raw_input("Enter virtualization level [2]: ") or "2")
 	if level > 3:
 		print ("We don't support more than L3")
 		sys.exit(0)
 
-	experiment_name = "default"
-	if args.name:
-		experiment_name = args.name
+	experiment_name = raw_input("Enter experiment name[default]: ") or "default"
 
-	reboot = 0 
-	if args.reboot:
-		reboot = int(args.reboot)
+	total_iterations = int(raw_input("Enter total iterations[10]: ") or "10")
+	iter_per_reboot = int(raw_input("Enter the number of iterations per reboot[2]: ") or "2")
 
-	iterations = 1 
-	if args.iterations:
-		iterations = int(args.iterations)
+	reboot = (total_iterations / iter_per_reboot) - 1
+	iterations = iter_per_reboot
 
 	ip_addr = IP[level]
 
