@@ -7,8 +7,21 @@ import time
 import socket
 from datetime import datetime
 import argparse
+from collections import OrderedDict
 
 IP = [ "10.10.1.2", "10.10.1.100", "10.10.1.101", "10.10.1.102" ]
+tests = [ "mysql", "nginx", "apache", "netperf-rr", "netperf-stream", "netperf-maerts", "memcached"]
+tests_raw = {
+	"mysql":0,
+	"nginx":0,
+	"apache":0,
+	"netperf-rr":0,
+	"netperf-stream":0,
+	"netperf-maerts":0,
+	"memcached":0
+	}
+
+tests = OrderedDict(sorted(tests_raw.items()))
 
 def setup_experiments(ip_addr):
 	setup_nginx(ip_addr)
@@ -118,6 +131,37 @@ def get_params():
 
 	return (level, experiment_name, iterations, reboot)
 
+def show_tests():
+
+	print ("===================")
+	for idx, (test,val) in enumerate(tests.items()):
+		prefix = '*' if val == 1 else ' '
+		print ("%s[%d] %s" % (prefix, idx, test))
+
+	test_len = len(tests)
+	print ("------------------")
+	print ("[%d] %s" % (test_len, "Start experiments"))
+
+def select_tests():
+
+	while True:
+		show_tests()
+
+		try:
+			test_num = int(raw_input("Type test number: "))
+		except ValueError:
+			break;
+
+		if test_num >= len(tests):
+			break;
+
+		# Toggle
+		old_val = tests.values()[test_num]
+		tests[tests.keys()[test_num]] = 1 - old_val
+
+		print ("")
+	return
+
 def main():
 
 	(level, experiment_name, iterations, reboot) = get_params()
@@ -126,7 +170,9 @@ def main():
 
 	print ('Name: %s, iterations: %d, reboot: %d' % (experiment_name, iterations, reboot))
 
-	os.system("rm *.txt")
+	os.system("rm -f *.txt")
+
+	select_tests()
 
 	reboot_cnt = 0
 
