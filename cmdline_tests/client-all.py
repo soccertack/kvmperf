@@ -9,16 +9,17 @@ from datetime import datetime
 import argparse
 from collections import OrderedDict
 
+STATUS_IDX = 0
 IP = [ "10.10.1.2", "10.10.1.100", "10.10.1.101", "10.10.1.102" ]
 tests = [ "mysql", "nginx", "apache", "netperf-rr", "netperf-stream", "netperf-maerts", "memcached"]
 tests_raw = {
-	"mysql":0,
-	"nginx":0,
-	"apache":0,
-	"netperf-rr":0,
-	"netperf-stream":0,
-	"netperf-maerts":0,
-	"memcached":0
+	"mysql":[0],
+	"nginx":[0],
+	"apache":[0],
+	"netperf-rr":[0],
+	"netperf-stream":[0],
+	"netperf-maerts":[0],
+	"memcached":[0]
 	}
 
 tests = OrderedDict(sorted(tests_raw.items()))
@@ -135,7 +136,7 @@ def show_tests():
 
 	print ("===================")
 	for idx, (test,val) in enumerate(tests.items()):
-		prefix = '*' if val == 1 else ' '
+		prefix = '*' if val[STATUS_IDX] == 1 else ' '
 		print ("%s[%d] %s" % (prefix, idx, test))
 
 	test_len = len(tests)
@@ -156,8 +157,8 @@ def select_tests():
 			break;
 
 		# Toggle
-		old_val = tests.values()[test_num]
-		tests[tests.keys()[test_num]] = 1 - old_val
+		old_val = tests.values()[test_num][STATUS_IDX]
+		tests[tests.keys()[test_num]][STATUS_IDX] = 1 - old_val
 
 		print ("")
 	return
