@@ -26,7 +26,7 @@ def boot_nvm(iovirt, level):
 		if level == 1:
 			child.sendline('cd /srv/vm && ./run-guest-vfio.sh')
 		else:
-			child.sendline('cd /srv/vm && ./run-guest-vfio-viommu.sh')
+			child.sendline('cd /srv/vm && ./run-guest-vfio-viommu.sh --xen')
 
 	child.expect('L1.*$')
 	mylevel = 1
@@ -37,7 +37,11 @@ def boot_nvm(iovirt, level):
 		if iovirt == "vp" or iovirt == "pt":
 			if mylevel == level:
 				#child.sendline('cd ~/vm && ./run-guest-vfio.sh')
-				child.sendline('xl pci-assignable-add 01:00.0')
+
+				if iovirt == "vp":
+					child.sendline('xl pci-assignable-add 01:00.0')
+				else
+					child.sendline('xl pci-assignable-add 00:05.0')
 				child.expect('L1.*$')
 				child.sendline('cd /etc/xen && xl create -c domU.hvm')
 			else:
