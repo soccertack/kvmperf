@@ -41,11 +41,14 @@ def boot_nvm(iovirt, level):
 				child.expect('L1.*$')
 				child.sendline('cd /etc/xen && xl create -c domU.hvm')
 			else:
+				# This is not rigt...
 				child.sendline('cd ~/env/xen-x86-scripts && ./net.sh')
 				child.expect('L1.*$')
 				child.sendline('cd /etc/xen && xl create -c domU.hvm')
 		else:
-			child.sendline('cd ~/vm && ./run-guest.sh')
+			child.sendline('cd ~/env/xen-x86-scripts && ./net.sh')
+			child.expect('L1.*$')
+			child.sendline('cd /etc/xen && xl create -c domU.hvm')
 
 		child.expect('L' + str(mylevel) + '.*$')
 
