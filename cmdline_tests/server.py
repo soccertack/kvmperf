@@ -13,15 +13,13 @@ def pin_vcpus(level):
 	os.system('cd /srv/vm/qemu/scripts/qmp/ && sudo ./pin_vcpus.sh && cd -')
 	if level > 1:
 		os.system('ssh root@10.10.1.100 "cd vm/qemu/scripts/qmp/ && ./pin_vcpus.sh"')
-	if level > 2:
-		os.system('ssh root@10.10.1.101 "cd vm/qemu/scripts/qmp/ && ./pin_vcpus.sh"')
 	print ("vcpu is pinned")
 
 def boot_nvm(iovirt, level):
 
 	mylevel = 0
 	if iovirt == "vp":
-		child.sendline('cd /srv/vm && ./run-guest-viommu.sh')
+		child.sendline('cd /srv/vm && ./run-guest-viommu.sh --xen')
 	elif iovirt == "pv":
 		child.sendline('cd /srv/vm && ./run-guest.sh')
 	elif iovirt == "pt":
@@ -38,7 +36,10 @@ def boot_nvm(iovirt, level):
 
 		if iovirt == "vp" or iovirt == "pt":
 			if mylevel == level:
-				child.sendline('cd ~/vm && ./run-guest-vfio.sh')
+				#child.sendline('cd ~/vm && ./run-guest-vfio.sh')
+				child.sendline('xl pci-assignable-add 01:00.0')
+				child.expect('L1.*$')
+				child.sendline('cd /etc/xen && xl create -c domU.hvm')
 			else:
 				child.sendline('cd ~/vm && ./run-guest-vfio-viommu.sh')
 		else:
