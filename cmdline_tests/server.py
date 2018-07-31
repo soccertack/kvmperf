@@ -21,7 +21,10 @@ def boot_nvm(iovirt, level):
 	if iovirt == "vp":
 		child.sendline('cd /srv/vm && ./run-guest-viommu.sh --xen')
 	elif iovirt == "pv":
-		child.sendline('cd /srv/vm && ./run-guest.sh --xen')
+		if level == 1:
+			child.sendline('cd /etc/xen && xl create -c DomU-PV.hvm')
+		else
+			child.sendline('cd /srv/vm && ./run-guest.sh --xen')
 	elif iovirt == "pt":
 		if level == 1:
 			child.sendline('cd /etc/xen && xl create -c DomU-PT.hvm')
