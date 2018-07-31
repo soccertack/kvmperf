@@ -40,7 +40,7 @@ def boot_nvm(iovirt, level):
 
 				if iovirt == "vp":
 					child.sendline('xl pci-assignable-add 01:00.0')
-				else
+				else:
 					child.sendline('xl pci-assignable-add 00:05.0')
 				child.expect('L1.*$')
 				child.sendline('cd /etc/xen && xl create -c domU.hvm')
