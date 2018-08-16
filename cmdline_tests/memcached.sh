@@ -2,7 +2,7 @@
 
 SERVER=${1-127.0.0.1}
 REPTS=${2-40}
-RESULTS=${3-memcached.txt}
+RESULTS=memcached.txt
 
 source exits.sh memcached
 

@@ -84,10 +84,10 @@ def run_apache(ip_addr):
 	os.system("./apache.sh %s" % ip_addr)
 	os.system('ssh root@%s "sudo service apache2 stop"' % ip_addr)
 
-def run_memcached(ip_addr, n_run = 40, out_filename = "memcached.txt"):
+def run_memcached(ip_addr):
 	os.system('ssh root@%s "sudo service memcached start"' % ip_addr)
 	time.sleep(1)
-	os.system("./memcached.sh %s %d %s" % (ip_addr, n_run, out_filename))
+	os.system("./memcached.sh %s" % ip_addr)
 	os.system('ssh root@%s "sudo service memcached stop"' % ip_addr)
 
 def move_data(experiment_name, i):
