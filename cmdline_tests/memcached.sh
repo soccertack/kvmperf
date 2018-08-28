@@ -10,7 +10,7 @@ echo "Benchmarking $SERVER" | tee >(cat >> $RESULTS)
 for i in `seq 1 $REPTS`; do
 	start_measurement
 
-	memtier_benchmark --test-time=30 -p 11211 -P memcache_binary -s $SERVER 2>&1 | \
+	memtier_benchmark -t 1 --test-time=30 -p 11211 -P memcache_binary -s $SERVER 2>&1 | \
 		tee >(grep 'Totals' | awk '{ print $2 }' >> $RESULTS)
 
 	end_measurement

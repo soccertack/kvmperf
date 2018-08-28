@@ -46,7 +46,7 @@ elif [[ "$ACTION" == "run" ]]; then
 	source exits.sh mysql
 	start_measurement
 
-	for num_threads in 200; do
+	for num_threads in 1; do
 		echo -e "$num_threads threads:\n---" >> $RESULTS
 		for i in `seq 1 $REPTS`; do
 			ssh $TEST_USER@$TARGET_IP "pushd ${CMD_PATH};sudo ./mysql.sh prep"

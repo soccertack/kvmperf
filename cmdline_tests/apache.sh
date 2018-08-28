@@ -6,10 +6,10 @@ REPTS=${2-50}
 echo "Measuring performance of $SRV"
 
 # requires that apache is installed with the gcc manual in place
-NR_REQUESTS=100000
+NR_REQUESTS=50000
 RESULTS=apache.txt
 ab=/usr/bin/ab
-CMD="$ab -n $NR_REQUESTS -c 10 http://$SRV/gcc/index.html"
+CMD="$ab -n $NR_REQUESTS -c 1 -t 10 http://$SRV/gcc/index.html"
 
 source exits.sh apache
 
