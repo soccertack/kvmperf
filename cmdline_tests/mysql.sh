@@ -17,6 +17,7 @@ REPTS=${5-10}
 NR_REQUESTS=1000
 TABLE_SIZE=1000000
 RESULTS=mysql.txt
+MAX_TIME=10
 
 function prepare() {
 	mysql -u root --password=kvm < create_db.sql
@@ -29,8 +30,8 @@ function cleanup() {
 }
 
 function run() {
-	sysbench --test=oltp --oltp-table-size=$TABLE_SIZE --num-threads=$num_threads --mysql-host=$TARGET_IP --mysql-password=kvm run | tee \
-	>(grep 'total time:' | awk '{ print $3 }' | sed 's/s//' >> $RESULTS)
+	sysbench --test=oltp --oltp-table-size=$TABLE_SIZE --max-time=$MAX_TIME --num-threads=$num_threads --mysql-host=$TARGET_IP --mysql-password=kvm run | tee \
+	>(grep 'transactions:' | awk '{ print $3 }' | sed 's/(//' >> $RESULTS)
 }
 
 if [[ "$TARGET_IP" != "localhost" && ("$ACTION" == "prep" || "$ACTION" == "cleanup") ]]; then
