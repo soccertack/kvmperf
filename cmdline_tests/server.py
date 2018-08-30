@@ -17,11 +17,14 @@ def pin_vcpus(level):
 		os.system('ssh root@10.10.1.101 "cd vm/qemu/scripts/qmp/ && ./pin_vcpus.sh"')
 	print ("vcpu is pinned")
 
-def boot_nvm(iovirt, level):
+def boot_nvm(iovirt, posted, level):
 
 	mylevel = 0
 	if iovirt == "vp":
-		child.sendline('cd /srv/vm && ./run-guest-viommu.sh')
+		pi_option = ""
+		if posted:
+			pi_option = "--pi"
+		child.sendline('cd /srv/vm && ./run-guest-viommu.sh %s' % pi_option)
 	elif iovirt == "pv":
 		child.sendline('cd /srv/vm && ./run-guest.sh')
 	elif iovirt == "pt":
@@ -62,9 +65,9 @@ def halt(level):
 	os.system('ssh root@10.10.1.100 "halt -p"')
 	child.expect('kvm-node.*')
 
-def reboot(iovirt, level):
+def reboot(iovirt, posted, level):
 	halt(level)
-	boot_nvm(iovirt, level)
+	boot_nvm(iovirt, posted, level)
 
 
 level  = int(raw_input("Enter virtualization level [2]: ") or "2")
@@ -81,13 +84,20 @@ if iovirt not in ["pv", "pt", "vp"]:
 	print ("Enter pv, pt, or vp")
 	sys.exit(0)
 
+if iovirt == "vp":
+	posted = raw_input("Enable posted-interrupts in vIOMMU? [no]: ") or "no"
+	if posted == "no":
+		posted = False
+	else:
+		posted = True
+
 child = pexpect.spawn('bash')
 child.logfile = sys.stdout
 child.timeout=None
 
 child.sendline('')
 child.expect('kvm-node.*')
-boot_nvm(iovirt, level)
+boot_nvm(iovirt, posted, level)
 
 serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -113,7 +123,7 @@ while True:
     if len(buf) > 0:
         print buf
 	if buf == "reboot":
-		reboot(iovirt, level)
+		reboot(iovirt, posted, level)
 		connection.send("ready")
 	elif buf == "halt":
 		halt(level)
