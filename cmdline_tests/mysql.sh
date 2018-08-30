@@ -11,8 +11,7 @@ function usage() {
 TARGET_IP=${2-localhost}	# dns/ip for machine to test
 TEST_USER=${3}
 CMD_PATH=${4}
-
-REPTS=${5-5}
+REPTS=${5-20}
 
 NR_REQUESTS=1000
 TABLE_SIZE=1000000
