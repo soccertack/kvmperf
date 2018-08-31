@@ -1,2 +1,2 @@
 #!/bin/bash
-./sipp -sn uas
+./sipp/sipp -sn uas
