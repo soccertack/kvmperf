@@ -43,7 +43,7 @@ def print_result_test(path, testname):
 					continue
 
 	print ("----------" + testname + "----------")
-	print ('\n'.join(' '.join(str(cell) for cell in row) for row in data))
+	print ('\n'.join(','.join(str(cell) for cell in row) for row in data))
 	print ("------------------------------------------------------------")
 	print ("")
 
