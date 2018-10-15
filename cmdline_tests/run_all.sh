@@ -2,14 +2,14 @@
 
 TEST_LEVEL=${1:-"L2"}
 
-source ./check.sh $TEST_LEVEL
-
 L0_IP="10.10.1.2"
 L1_IP="10.10.1.100"
 L2_IP="10.10.1.101"
 #PP: PV-Passthrough
 L2_PP_IP="10.10.1.201"
 TEST_USER="root"
+
+source ./check.sh $TEST_LEVEL
 
 LOCAL=0
 IDX_OFFSET=3
@@ -190,12 +190,11 @@ LOCAL_PATH=$KVMPERF_PATH/localtests
 echo -n "Enter test name: "
 read TEST_DESC
 
-install_tests
-
 if [[ -n $TEST_DESC ]]; then
 	mkdir $TEST_DESC
 	echo -n "How many times to repeat? "
 	read repeat
+	install_tests
 
 	for i in `seq 1 $repeat`; do
 		run_tests
@@ -203,5 +202,6 @@ if [[ -n $TEST_DESC ]]; then
 		move_results $TEST_DESC/$i
 	done
 else
+	install_tests
 	run_tests
 fi

@@ -125,10 +125,10 @@ function kernel_check_all()
 	kernel_check $C_KERNEL Client
 	kernel_check $L0_KERNEL L0 $USER 10.10.1.2
 	if [[ "$TEST_LEVEL" != "L0" ]]; then
-		kernel_check $L1_KERNEL L1 root 10.10.1.100
+		kernel_check $L1_KERNEL L1 root $L1_IP
 	fi
 	if [[ "$TEST_LEVEL" == "L2" ]]; then
-		kernel_check $L2_KERNEL L2 root 10.10.1.101
+		kernel_check $L2_KERNEL L2 root $L2_IP
 	fi
 }
 
@@ -136,10 +136,10 @@ function trace_check_all()
 {
 	trace_check L0 $USER 10.10.1.2
 	if [[ "$TEST_LEVEL" != "L0" ]]; then
-		trace_check L1 root 10.10.1.100
+		trace_check L1 root $L1_IP
 	fi
 	if [[ "$TEST_LEVEL" == "L2" ]]; then
-		trace_check L2 root 10.10.1.101
+		trace_check L2 root $L2_IP
 	fi
 }
 
@@ -149,7 +149,7 @@ function qemu_check_all()
 		qemu_check L0 $USER 10.10.1.2
 	fi
 	if [[ "$TEST_LEVEL" == "L2" ]]; then
-		qemu_check L1 root 10.10.1.100
+		qemu_check L1 root $L1_IP
 	fi
 }
 
@@ -174,10 +174,10 @@ function irqbalance_check_all()
 	irqb_check Client
 	irqb_check L0 $USER 10.10.1.2
 	if [[ "$TEST_LEVEL" != "L0" ]]; then
-		irqb_check L1 root 10.10.1.100
+		irqb_check L1 root $L1_IP
 	fi
 	if [[ "$TEST_LEVEL" == "L2" ]]; then
-		irqb_check L2 root 10.10.1.101
+		irqb_check L2 root $L2_IP
 	fi
 }
 

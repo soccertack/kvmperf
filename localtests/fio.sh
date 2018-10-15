@@ -1,6 +1,7 @@
 #!/bin/bash
 
-TIMELOG=${TIMELOG-$(pwd)/fio.txt}
+READLOG=fio-read.txt
+WRITELOG=fio-write.txt
 
 source setup.sh
 source setup-kernel.sh
@@ -69,21 +70,21 @@ if [[ ! $TEST_FIO_REPEAT == 0 ]]; then
 	rm -rf $FIO_TEST_DIR
 	mkdir -p $FIO_TEST_DIR
 
-	echo "fio random read (in msec)" >> $TIMELOG
+	#echo "fio random read (in msec)" >> $TIMELOG
 	for i in `seq 1 $TEST_FIO_REPEAT`; do
 		echo "fio copy kernel.xz"
 		cp $KERNEL_XZ $FIO_TEST_DIR
 		refresh
 		echo "fio read test start"
-		$FIO random-read-test.fio | tee >(grep 'read : io' | awk 'BEGIN { FS = "=" }; {print $5+0}' >> $TIMELOG)
+		$FIO random-read-test.fio | tee >(grep 'read : io' | awk 'BEGIN { FS = "=" }; {print $5+0}' >> $READLOG)
 	done
-	echo "fio random write (in msec)" >> $TIMELOG
+	#echo "fio random write (in msec)" >> $TIMELOG
 	for i in `seq 1 $TEST_FIO_REPEAT`; do
 		echo "fio copy kernel.xz"
 		cp $KERNEL_XZ $FIO_TEST_DIR
 		refresh
 		echo "fio write test start"
-		$FIO random-write-test.fio | tee >(grep 'write: io' | awk 'BEGIN { FS = "="}; {print $5+0}' >> $TIMELOG)
+		$FIO random-write-test.fio | tee >(grep 'write: io' | awk 'BEGIN { FS = "="}; {print $5+0}' >> $WRITELOG)
 	done
 	rm -rf $FIO_TEST_DIR
 fi
