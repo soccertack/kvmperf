@@ -2,14 +2,14 @@
 
 TEST_LEVEL=${1:-"L2"}
 
-source ./check.sh $TEST_LEVEL
-
 L0_IP="10.10.1.2"
 L1_IP="10.10.1.100"
 L2_IP="10.10.1.101"
 #PP: PV-Passthrough
 L2_PP_IP="10.10.1.201"
 TEST_USER="root"
+
+source ./check.sh $TEST_LEVEL
 
 LOCAL=0
 IDX_OFFSET=3
