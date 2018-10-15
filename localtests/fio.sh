@@ -1,7 +1,7 @@
 #!/bin/bash
 
-READLOG=fio-read.txt
-WRITELOG=fio-write.txt
+READLOG=$(pwd)/fio-read.txt
+WRITELOG=$(pwd)/fio-write.txt
 
 source setup.sh
 source setup-kernel.sh
