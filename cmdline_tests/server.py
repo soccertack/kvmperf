@@ -8,7 +8,10 @@ import time
 import socket
 import argparse
 
+L0_QEMU_PATH = '--qemu /sdc/L0-qemu/'
+L1_QEMU_PATH = '--qemu /sdc/L1-qemu/'
 LOCAL_SOCKET = 8890
+
 def pin_vcpus(level):
 	os.system('cd /srv/vm/qemu/scripts/qmp/ && sudo ./pin_vcpus.sh && cd -')
 	if level > 1:
@@ -17,21 +20,29 @@ def pin_vcpus(level):
 		os.system('ssh root@10.10.1.101 "cd vm/qemu/scripts/qmp/ && ./pin_vcpus.sh"')
 	print ("vcpu is pinned")
 
+cmd_pv = './run-guest.sh'
+cmd_vfio = './run-guest-vfio.sh'
+cmd_viommu = './run-guest-viommu.sh'
+cmd_vfio_viommu = './run-guest-vfio-viommu.sh'
+
 def boot_nvm(iovirt, posted, level):
 
+	l0_cmd = 'cd /srv/vm && '
 	mylevel = 0
 	if iovirt == "vp":
-		pi_option = ""
-		if posted:
-			pi_option = "--pi"
-		child.sendline('cd /srv/vm && ./run-guest-viommu.sh %s' % pi_option)
+		l0_cmd += cmd_viommu
 	elif iovirt == "pv":
-		child.sendline('cd /srv/vm && ./run-guest.sh')
+		l0_cmd += cmd_pv
 	elif iovirt == "pt":
 		if level == 1:
-			child.sendline('cd /srv/vm && ./run-guest-vfio.sh')
+			l0_cmd += cmd_vfio
 		else:
-			child.sendline('cd /srv/vm && ./run-guest-vfio-viommu.sh')
+			l0_cmd += cmd_vfio_viommu
+
+	if posted:
+		l0_cmd += " --pi"
+	
+	child.sendline(l0_cmd)
 
 	child.expect('L1.*$')
 	mylevel = 1
