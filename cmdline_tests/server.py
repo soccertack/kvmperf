@@ -13,11 +13,15 @@ l1_migration_qemu = ' --qemu /sdc/L1-qemu/'
 mi_src = " -s"
 mi_dest = " -t"
 LOCAL_SOCKET = 8890
+l1_addr='10.10.1.100'
+
+def wait_for_prompt(child, hostname):
+    child.expect('%s.*#' % hostname)
 
 def pin_vcpus(level):
 	os.system('cd /srv/vm/qemu/scripts/qmp/ && sudo ./pin_vcpus.sh && cd -')
 	if level > 1:
-		os.system('ssh root@10.10.1.100 "cd vm/qemu/scripts/qmp/ && ./pin_vcpus.sh"')
+		os.system('ssh root@%s "cd vm/qemu/scripts/qmp/ && ./pin_vcpus.sh"' % l1_addr)
 	if level > 2:
 		os.system('ssh root@10.10.1.101 "cd vm/qemu/scripts/qmp/ && ./pin_vcpus.sh"')
 	print ("vcpu is pinned")
@@ -97,13 +101,18 @@ def halt(level):
 		os.system('ssh root@10.10.1.101 "halt -p"')
 		child.expect('L1.*$')
 
-	os.system('ssh root@10.10.1.100 "halt -p"')
-	child.expect('kvm-node.*')
+	os.system('ssh root@%s "halt -p"' % l1_addr)
+	wait_for_prompt(child, hostname)
 
 def reboot(iovirt, posted, level, mi, mi_role):
 	halt(level)
 	boot_nvm(iovirt, posted, level, mi, mi_role)
 
+## MAIN
+
+hostname = os.popen('hostname | cut -d . -f1').read().strip()
+if hostname == "kvm-dest":
+    l1_addr = "10.10.1.110"
 
 level  = int(raw_input("Enter virtualization level [2]: ") or "2")
 if level < 1:
@@ -146,7 +155,7 @@ child.logfile_read=sys.stdout
 child.timeout=None
 
 child.sendline('')
-child.expect('kvm-node.*')
+wait_for_prompt(child, hostname)
 boot_nvm(iovirt, posted, level, mi, mi_role)
 
 if mi == "l2":
