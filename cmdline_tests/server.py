@@ -142,10 +142,10 @@ if mi not in ["no", "l2"]:
 	print ("Enter no or l2")
 	sys.exit(0)
 elif mi == "l2":
-	mi_role = raw_input("src or dest? [src]: ") or "src"
-	if mi_role not in ["src", "dest"]:
-		print ("Enter src or dest")
-		sys.exit(0)
+	if hostname == "kvm-dest":
+		mi_role = 'dest'
+	else:
+		mi_role = 'src'
 
 
 child = pexpect.spawn('bash')
