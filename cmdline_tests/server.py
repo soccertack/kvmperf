@@ -140,12 +140,18 @@ elif mi == "l2":
 
 
 child = pexpect.spawn('bash')
-child.logfile = sys.stdout
+#https://stackoverflow.com/questions/29245269/pexpect-echoes-sendline-output-twice-causing-unwanted-characters-in-buffer
+#child.logfile = sys.stdout
+child.logfile_read=sys.stdout
 child.timeout=None
 
 child.sendline('')
 child.expect('kvm-node.*')
 boot_nvm(iovirt, posted, level, mi, mi_role)
+
+if mi == "l2":
+	child.interact()
+	sys.exit(0)
 
 serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
