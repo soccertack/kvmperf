@@ -15,6 +15,11 @@ mi_dest = " -t"
 LOCAL_SOCKET = 8890
 l1_addr='10.10.1.100'
 
+###############################
+#### set default here #########
+mi_default = "l2"
+io_default = "vp"
+###############################
 def wait_for_prompt(child, hostname):
     child.expect('%s.*#' % hostname)
 
@@ -123,7 +128,7 @@ if level > 3:
 	sleep(5)
 
 # iovirt: pv, pt(pass-through), or vp(virtual-passthough)
-iovirt = raw_input("Enter I/O virtualization level [pv]: ") or "pv"
+iovirt = raw_input("Enter I/O virtualization level [%s]: " % io_default) or io_default
 if iovirt not in ["pv", "pt", "vp"]:
 	print ("Enter pv, pt, or vp")
 	sys.exit(0)
@@ -137,7 +142,7 @@ if iovirt == "vp":
 
 
 mi_role = ""
-mi = raw_input("Migration? [no]: ") or "no"
+mi = raw_input("Migration? [%s]: " % mi_default) or mi_default
 if mi not in ["no", "l2"]:
 	print ("Enter no or l2")
 	sys.exit(0)
