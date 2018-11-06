@@ -25,10 +25,9 @@ cmd_vfio = './run-guest-vfio.sh'
 cmd_viommu = './run-guest-viommu.sh'
 cmd_vfio_viommu = './run-guest-vfio-viommu.sh'
 
-def boot_nvm(iovirt, posted, level):
+def boot_l1(iovirt, posted, level):
 
 	l0_cmd = 'cd /srv/vm && '
-	mylevel = 0
 	if iovirt == "vp":
 		l0_cmd += cmd_viommu
 	elif iovirt == "pv":
@@ -45,19 +44,25 @@ def boot_nvm(iovirt, posted, level):
 	child.sendline(l0_cmd)
 
 	child.expect('L1.*$')
-	mylevel = 1
 
+def boot_nvm(iovirt, posted, level):
+
+	boot_l1(iovirt, posted, level)
+
+	mylevel = 1
 	while (mylevel < level):
 		mylevel += 1
 
+		lx_cmd = 'cd ~/vm && '
 		if iovirt == "vp" or iovirt == "pt":
 			if mylevel == level:
-				child.sendline('cd ~/vm && ./run-guest-vfio.sh')
+				lx_cmd += cmd_vfio
 			else:
-				child.sendline('cd ~/vm && ./run-guest-vfio-viommu.sh')
+				lx_cmd += cmd_vfio_viommu
 		else:
-			child.sendline('cd ~/vm && ./run-guest.sh')
+			lx_cmd += cmd_pv
 
+		child.sendline(lx_cmd)
 		child.expect('L' + str(mylevel) + '.*$')
 
 	time.sleep(2)
