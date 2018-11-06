@@ -8,8 +8,10 @@ import time
 import socket
 import argparse
 
-L0_QEMU_PATH = '--qemu /sdc/L0-qemu/'
-L1_QEMU_PATH = '--qemu /sdc/L1-qemu/'
+l0_migration_qemu  = ' --qemu /sdc/L0-qemu/'
+l1_migration_qemu = ' --qemu /sdc/L1-qemu/'
+mi_src = " -s"
+mi_dest = " -t"
 LOCAL_SOCKET = 8890
 
 def pin_vcpus(level):
@@ -25,11 +27,13 @@ cmd_vfio = './run-guest-vfio.sh'
 cmd_viommu = './run-guest-viommu.sh'
 cmd_vfio_viommu = './run-guest-vfio-viommu.sh'
 
-def boot_l1(iovirt, posted, level):
+def boot_l1(iovirt, posted, level, mi):
 
 	l0_cmd = 'cd /srv/vm && '
 	if iovirt == "vp":
 		l0_cmd += cmd_viommu
+		if mi == "l2":
+			l0_cmd += l0_migration_qemu
 	elif iovirt == "pv":
 		l0_cmd += cmd_pv
 	elif iovirt == "pt":
@@ -45,9 +49,20 @@ def boot_l1(iovirt, posted, level):
 
 	child.expect('L1.*$')
 
-def boot_nvm(iovirt, posted, level):
+def handle_mi_options(lx_cmd, mi, mi_role):
 
-	boot_l1(iovirt, posted, level)
+	if mi == "l2":
+		lx_cmd += l1_migration_qemu
+		if mi_role == "src":
+			lx_cmd += mi_src
+		else:
+			lx_cmd += mi_dest
+
+	return lx_cmd
+
+def boot_nvm(iovirt, posted, level, mi, mi_role):
+
+	boot_l1(iovirt, posted, level, mi)
 
 	mylevel = 1
 	while (mylevel < level):
@@ -57,13 +72,17 @@ def boot_nvm(iovirt, posted, level):
 		if iovirt == "vp" or iovirt == "pt":
 			if mylevel == level:
 				lx_cmd += cmd_vfio
+				lx_cmd = handle_mi_options(lx_cmd, mi, mi_role)
 			else:
 				lx_cmd += cmd_vfio_viommu
 		else:
 			lx_cmd += cmd_pv
 
 		child.sendline(lx_cmd)
-		child.expect('L' + str(mylevel) + '.*$')
+		if mi == "l2":
+			child.expect('\(qemu\)')
+		else:
+			child.expect('L' + str(mylevel) + '.*$')
 
 	time.sleep(2)
 	pin_vcpus(level)
@@ -81,9 +100,9 @@ def halt(level):
 	os.system('ssh root@10.10.1.100 "halt -p"')
 	child.expect('kvm-node.*')
 
-def reboot(iovirt, posted, level):
+def reboot(iovirt, posted, level, mi, mi_role):
 	halt(level)
-	boot_nvm(iovirt, posted, level)
+	boot_nvm(iovirt, posted, level, mi, mi_role)
 
 
 level  = int(raw_input("Enter virtualization level [2]: ") or "2")
@@ -107,13 +126,26 @@ if iovirt == "vp":
 	else:
 		posted = True
 
+
+mi_role = ""
+mi = raw_input("Migration? [no]: ") or "no"
+if mi not in ["no", "l2"]:
+	print ("Enter no or l2")
+	sys.exit(0)
+elif mi == "l2":
+	mi_role = raw_input("src or dest? [src]: ") or "src"
+	if mi_role not in ["src", "dest"]:
+		print ("Enter src or dest")
+		sys.exit(0)
+
+
 child = pexpect.spawn('bash')
 child.logfile = sys.stdout
 child.timeout=None
 
 child.sendline('')
 child.expect('kvm-node.*')
-boot_nvm(iovirt, posted, level)
+boot_nvm(iovirt, posted, level, mi, mi_role)
 
 serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -139,7 +171,7 @@ while True:
     if len(buf) > 0:
         print buf
 	if buf == "reboot":
-		reboot(iovirt, posted, level)
+		reboot(iovirt, posted, level, mi)
 		connection.send("ready")
 	elif buf == "halt":
 		halt(level)
