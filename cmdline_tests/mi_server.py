@@ -60,6 +60,17 @@ def terminate_all():
 	for conn in clients:
 		conn.send(MSG_TERMINATE)
 
+def ping_l2():
+
+	while True:
+		if (os.system("ping -c 1 10.10.1.101") == 0):
+			break;
+		print ("ping was not successfull. Retry after one sec")
+		time.sleep(1)
+
+	print ("Ping was successful. Wait for 10 sec")
+	time.sleep(10)
+
 def handle_recv(conn, data):
 	global server_status
 	print (data + " is received")
@@ -71,6 +82,7 @@ def handle_recv(conn, data):
 
 	# Server state
 	if (server_status == S_WAIT_FOR_BOOT) and check_all_ready():
+		ping_l2()
 		src_conn = get_src_conn()
 		src_conn.send(MSG_MIGRATE)
 		print("start migration")
@@ -119,11 +131,15 @@ while inputs:
 		if item == s:
 			#handle connection
 			conn, addr = s.accept()
-			print 'Connected with ' + addr[0] + ':' + str(addr[1])
-			inputs.append(conn)
-			clients.append(conn)
-			conn_status[conn] = [SC_CONNECTED, addr[0]]
-			boot_nvm(conn)
+			if "10.10.1" not in addr[0]:
+				s.close()
+				print 'Suspcious connection from %s. Disconnect' % addr[0]
+			else:
+				print 'Connected with ' + addr[0] + ':' + str(addr[1])
+				inputs.append(conn)
+				clients.append(conn)
+				conn_status[conn] = [SC_CONNECTED, addr[0]]
+				boot_nvm(conn)
 
 		else:
 			data = item.recv(size)
