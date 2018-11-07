@@ -56,6 +56,10 @@ def check_all_ready():
 
 	return src_ready and dest_ready
 
+def terminate_all():
+	for conn in clients:
+		conn.send(MSG_TERMINATE)
+
 def handle_recv(conn, data):
 	global server_status
 	print (data + " is received")
@@ -77,7 +81,9 @@ def handle_recv(conn, data):
 			print("migration is completed")
 			print("Collect migration result")
 			time.sleep(2)
-			print("TODO: send messages to terminate VMs")
+			print("send messages to terminate VMs")
+			terminate_all()
+			
 
 def boot_nvm(conn):
 	conn.send(MSG_BOOT)
