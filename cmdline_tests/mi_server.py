@@ -68,8 +68,6 @@ def ping_l2():
 		print ("ping was not successfull. Retry after one sec")
 		time.sleep(1)
 
-	print ("Ping was successful. Wait for 10 sec")
-	time.sleep(10)
 
 def handle_recv(conn, data):
 	global server_status
@@ -83,6 +81,9 @@ def handle_recv(conn, data):
 	# Server state
 	if (server_status == S_WAIT_FOR_BOOT) and check_all_ready():
 		ping_l2()
+		print ("Ping was successful. Wait for 10 sec")
+		time.sleep(10)
+
 		src_conn = get_src_conn()
 		src_conn.send(MSG_MIGRATE)
 		print("start migration")
@@ -90,6 +91,10 @@ def handle_recv(conn, data):
 
 	if server_status == S_MIGRAION_START:
 		if data == MSG_MIGRATE_COMPLETED:
+			time.sleep(2)
+			ping_l2()
+			print ("Ping was successful after migration")
+
 			print("migration is completed")
 			print("Collect migration result")
 			time.sleep(2)
