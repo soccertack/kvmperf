@@ -13,6 +13,7 @@ from mi_common import *
 C_NULL = 0
 C_WAIT_FOR_BOOT_CMD = 1
 C_BOOT_COMPLETED = 2
+C_MIGRATION_COMPLETED = 3
 
 status = C_NULL
 
@@ -30,6 +31,13 @@ def handle_recv(c, buf):
 		if buf == MSG_BOOT:
 			c.send(MSG_BOOT_COMPLETED)
 			status = C_BOOT_COMPLETED
+	else if status == C_BOOT_COMPLETED:
+		if buf == MSG_MIGRATE:
+			print "start migration"
+			time.sleep(2)
+			print "migration completed"
+			c.send(MSG_BOOT_COMPLETED)
+			status = C_MIGRATION_COMPLETED
 
 def main():
 	global status
@@ -37,16 +45,16 @@ def main():
 	clientsocket = connect_to_server()
 	status = C_WAIT_FOR_BOOT_CMD
 
-	while 1:
-		while True:
-			print("Waiting to get a message from the server")
-			buf = clientsocket.recv(size)
-			if not buf:
-				print("Server is disconnected")
-				sys.exit(0)
-			else:
-				handle_recv(clientsocket, buf)
-		
+	while True:
+		buf = clientsocket.recv(size)
+		if not buf:
+			print("Server is disconnected")
+			sys.exit(0)
+		else:
+			handle_recv(clientsocket, buf)
+			if stats == C_MIGRATION_COMPLETED:
+				print ("Job done. Terminating the script")
+				break;
 
 if __name__ == '__main__':
 	main()
