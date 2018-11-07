@@ -31,7 +31,7 @@ def handle_recv(c, buf):
 		if buf == MSG_BOOT:
 			c.send(MSG_BOOT_COMPLETED)
 			status = C_BOOT_COMPLETED
-	else if status == C_BOOT_COMPLETED:
+	elif status == C_BOOT_COMPLETED:
 		if buf == MSG_MIGRATE:
 			print "start migration"
 			time.sleep(2)
@@ -52,7 +52,7 @@ def main():
 			sys.exit(0)
 		else:
 			handle_recv(clientsocket, buf)
-			if stats == C_MIGRATION_COMPLETED:
+			if status == C_MIGRATION_COMPLETED:
 				print ("Job done. Terminating the script")
 				break;
 
