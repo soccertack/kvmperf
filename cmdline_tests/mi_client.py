@@ -40,7 +40,7 @@ def handle_recv(c, buf):
 			c.send(MSG_MIGRATE_COMPLETED)
 			status = C_MIGRATION_COMPLETED
 
-	if data == MSG_TERMINATE:
+	if buf == MSG_TERMINATE:
 		print ("Terminate VM.")
 		status = C_TERMINATED
 
