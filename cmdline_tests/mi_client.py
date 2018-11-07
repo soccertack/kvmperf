@@ -14,6 +14,7 @@ C_NULL = 0
 C_WAIT_FOR_BOOT_CMD = 1
 C_BOOT_COMPLETED = 2
 C_MIGRATION_COMPLETED = 3
+C_TERMINATED = 4
 
 status = C_NULL
 
@@ -39,6 +40,10 @@ def handle_recv(c, buf):
 			c.send(MSG_MIGRATE_COMPLETED)
 			status = C_MIGRATION_COMPLETED
 
+	if data == MSG_TERMINATE:
+		print ("Terminate VM.")
+		status = C_TERMINATED
+
 def main():
 	global status
 
@@ -52,8 +57,7 @@ def main():
 			sys.exit(0)
 		else:
 			handle_recv(clientsocket, buf)
-			if status == C_MIGRATION_COMPLETED:
-				print ("Job done. Terminating the script")
+			if status == C_TERMINATED:
 				break;
 
 if __name__ == '__main__':
