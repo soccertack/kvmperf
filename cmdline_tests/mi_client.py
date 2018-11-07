@@ -36,7 +36,7 @@ def handle_recv(c, buf):
 			print "start migration"
 			time.sleep(2)
 			print "migration completed"
-			c.send(MSG_BOOT_COMPLETED)
+			c.send(MSG_MIGRATE_COMPLETED)
 			status = C_MIGRATION_COMPLETED
 
 def main():
