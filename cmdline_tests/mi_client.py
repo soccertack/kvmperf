@@ -42,9 +42,13 @@ def handle_recv(c, buf):
 			child.sendline('migrate -d tcp:10.10.1.110:5555')
 			child.expect('\(qemu\)')
 
-			child.sendline('info migrate')
-			child.expect('\(qemu\)')
-			time.sleep(2)
+			while True:
+				child.sendline('info migrate')
+				child.expect('\(qemu\)')
+				if "Migration status: completed" in child.before:
+					break;
+				time.sleep(2)
+
 			print "migration completed"
 			c.send(MSG_MIGRATE_COMPLETED)
 			status = C_MIGRATION_COMPLETED
