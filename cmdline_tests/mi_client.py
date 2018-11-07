@@ -8,6 +8,7 @@ import socket
 from datetime import datetime
 from sk_common import *
 from mi_common import *
+from mi_api import *
 
 #Client status
 C_NULL = 0
@@ -30,11 +31,19 @@ def handle_recv(c, buf):
 	print buf + " is received"
 	if status == C_WAIT_FOR_BOOT_CMD:
 		if buf == MSG_BOOT:
+			boot_nvm(iovirt, posted, level, mi, mi_role)
 			c.send(MSG_BOOT_COMPLETED)
 			status = C_BOOT_COMPLETED
 	elif status == C_BOOT_COMPLETED:
 		if buf == MSG_MIGRATE:
 			print "start migration"
+			child.sendline('migrate_set_speed 4095m')
+			child.expect('\(qemu\)')
+			child.sendline('migrate -d tcp:10.10.1.110:5555')
+			child.expect('\(qemu\)')
+
+			child.sendline('info migrate')
+			child.expect('\(qemu\)')
 			time.sleep(2)
 			print "migration completed"
 			c.send(MSG_MIGRATE_COMPLETED)
@@ -42,7 +51,13 @@ def handle_recv(c, buf):
 
 	if buf == MSG_TERMINATE:
 		print ("Terminate VM.")
+		child.sendline('stop')
+		child.expect('\(qemu\)')
+		child.sendline('q')
+		child.expect('L1.*$')
+		child.sendline('h')
 		status = C_TERMINATED
+		wait_for_prompt(child, hostname)
 
 def main():
 	global status
