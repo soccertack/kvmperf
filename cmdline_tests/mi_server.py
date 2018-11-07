@@ -57,6 +57,7 @@ def check_all_ready():
 	return src_ready and dest_ready
 
 def handle_recv(conn, data):
+	global server_status
 	print (data + " is received")
 
 	# Per connection status
@@ -65,11 +66,18 @@ def handle_recv(conn, data):
 			set_status(conn, SC_NVM_READY)
 
 	# Server state
-	if (server_status == S_WAIT_FOR_BOOT) && check_all_ready():
+	if (server_status == S_WAIT_FOR_BOOT) and check_all_ready():
 		src_conn = get_src_conn()
 		src_conn.send(MSG_MIGRATE)
 		print("start migration")
 		server_status = S_MIGRAION_START
+
+	if server_status == S_MIGRAION_START:
+		if data == MSG_MIGRATE_COMPLETED:
+			print("migration is completed")
+			print("Collect migration result")
+			time.sleep(2)
+			print("TODO: send messages to terminate VMs")
 
 def boot_nvm(conn):
 	conn.send(MSG_BOOT)
@@ -94,6 +102,8 @@ inputs = []
 outputs = []
 clients = []
 inputs.append(s)
+
+global server_status
 server_status = S_WAIT_FOR_BOOT
 
 while inputs:
