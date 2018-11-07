@@ -24,6 +24,7 @@ def connect_to_server():
 	return clientsocket
 
 def handle_recv(c, buf):
+	global status
 	print buf + " is received"
 	if status == C_WAIT_FOR_BOOT_CMD:
 		if buf == MSG_BOOT:
@@ -31,6 +32,7 @@ def handle_recv(c, buf):
 			status = C_BOOT_COMPLETED
 
 def main():
+	global status
 
 	clientsocket = connect_to_server()
 	status = C_WAIT_FOR_BOOT_CMD
