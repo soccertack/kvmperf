@@ -8,6 +8,7 @@ import datetime
 import time
 import socket
 from sk_common import *
+from mi_common import *
 
 #Connection status fields
 IDX_STATUS = 0
@@ -23,7 +24,7 @@ def handle_recv(data):
 	print (data + "is received")
 
 def boot_nvm(conn):
-	conn.send("Boot nVM")
+	conn.send(MSG_BOOT)
 	conn_status[conn][IDX_STATUS] = SC_WAIT_FOR_BOOT
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
