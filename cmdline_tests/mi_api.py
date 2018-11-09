@@ -103,11 +103,13 @@ def boot_nvm(params):
 		if iovirt == "vp" or iovirt == "pt":
 			if mylevel == level:
 				lx_cmd += cmd_vfio
-				lx_cmd = handle_mi_options(lx_cmd, mi, mi_role)
 			else:
 				lx_cmd += cmd_vfio_viommu
 		else:
 			lx_cmd += cmd_pv
+
+		if mylevel == level:
+			lx_cmd = handle_mi_options(lx_cmd, mi, mi_role)
 
 		child.sendline(lx_cmd)
 		if mi == "l2":
