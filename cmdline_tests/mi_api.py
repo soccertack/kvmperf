@@ -88,7 +88,6 @@ def handle_mi_options(lx_cmd, mi, mi_role):
 
 def boot_nvm(params):
 	iovirt = params.iovirt
-	posted = params.posted
 	level = params.level
 	mi = params.mi
 	mi_role = params.mi_role
