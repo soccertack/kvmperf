@@ -49,7 +49,11 @@ cmd_vfio = './run-guest-vfio.sh'
 cmd_viommu = './run-guest-viommu.sh'
 cmd_vfio_viommu = './run-guest-vfio-viommu.sh'
 
-def boot_l1(iovirt, posted, level, mi):
+def boot_l1(params):
+	iovirt = params.iovirt
+	posted = params.posted
+	level = params.level
+	mi = params.mi
 
 	l0_cmd = 'cd /srv/vm && '
 	if iovirt == "vp":
@@ -89,7 +93,7 @@ def boot_nvm(params):
 	mi = params.mi
 	mi_role = params.mi_role
 
-	boot_l1(iovirt, posted, level, mi)
+	boot_l1(params)
 
 	mylevel = 1
 	while (mylevel < level):
@@ -127,9 +131,9 @@ def halt(level):
 	os.system('ssh root@%s "halt -p"' % l1_addr)
 	wait_for_prompt(child, hostname)
 
-def reboot(iovirt, posted, level, mi, mi_role):
-	halt(level)
-	boot_nvm(iovirt, posted, level, mi, mi_role)
+def reboot(params):
+	halt(params.level)
+	boot_nvm(params)
 
 def str_to_bool(s):
 	if s == 'True':
