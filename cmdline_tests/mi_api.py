@@ -8,6 +8,18 @@ import time
 import socket
 import argparse
 import os.path
+import pickle
+
+class Params:
+	def __init__(self):
+		self.level = 0
+		self.iovirt = "none"
+		self.posted = False
+		mi = "none"
+		mi_role = "none"
+
+	def __str__(self):
+		return str(self.__class__) + ": " + str(self.__dict__)
 
 l0_migration_qemu  = ' --qemu /sdc/L0-qemu/'
 l1_migration_qemu = ' --qemu /sdc/L1-qemu/'
@@ -123,20 +135,22 @@ def str_to_bool(s):
 		print (s)
 		raise ValueError
 
-EXP_PARAMS="./.exp_params"
+EXP_PARAMS_PKL="./.exp_params.pkl"
 def get_params(hostname):
-	if os.path.exists(EXP_PARAMS):
-		print ("We have param file")
-		f = open(EXP_PARAMS, "r")
-		level = int(f.readline().rstrip('\n'))
-		iovirt = f.readline().rstrip('\n')
-		posted = str_to_bool(f.readline().rstrip('\n'))
-		mi = f.readline().rstrip('\n')
-		mi_role = f.readline().rstrip('\n')
+	if os.path.exists(EXP_PARAMS_PKL):
 
-		f.close()
+		with open(EXP_PARAMS_PKL, 'rb') as input:
+			params = pickle.load(input)
+			print(params)
+			level = params.level
+			iovirt = params.iovirt
+			posted = params.posted
+			mi = params.mi
+			mi_role = params.mi_role
+
 	else:
 		print ("We don't have param file")
+		new_params = Params()
 
 		level  = int(raw_input("Enter virtualization level [2]: ") or "2")
 		if level < 1:
@@ -145,12 +159,14 @@ def get_params(hostname):
 		if level > 3:
 			print ("Are you sure to run virt level %d?" % level)
 			sleep(5)
+		new_params.level = level
 
 # iovirt: pv, pt(pass-through), or vp(virtual-passthough)
 		iovirt = raw_input("Enter I/O virtualization level [%s]: " % io_default) or io_default
 		if iovirt not in ["pv", "pt", "vp"]:
 			print ("Enter pv, pt, or vp")
 			sys.exit(0)
+		new_params.iovirt = iovirt
 
 		posted = False
 		if iovirt == "vp":
@@ -159,6 +175,7 @@ def get_params(hostname):
 				posted = False
 			else:
 				posted = True
+		new_params.posted = posted
 
 
 		mi_role = ""
@@ -171,15 +188,11 @@ def get_params(hostname):
 				mi_role = 'dest'
 			else:
 				mi_role = 'src'
+		new_params.mi = mi
+		new_params.mi_role = mi_role
 
-
-		f = open(EXP_PARAMS, "w")
-		f.write(str(level)+"\n")
-		f.write(iovirt+"\n")
-		f.write(str(posted)+"\n")
-		f.write(mi+"\n")
-		f.write(mi_role+"\n")
-		f.close()
+		with open(EXP_PARAMS_PKL, 'wb') as output:
+			pickle.dump(new_params, output)
 
 	return level, iovirt, posted, mi, mi_role
 
