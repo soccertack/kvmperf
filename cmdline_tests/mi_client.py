@@ -31,7 +31,7 @@ def handle_recv(c, buf):
 	print buf + " is received"
 	if status == C_WAIT_FOR_BOOT_CMD:
 		if buf == MSG_BOOT:
-			boot_nvm(iovirt, posted, level, mi, mi_role)
+			boot_nvm(params)
 			c.send(MSG_BOOT_COMPLETED)
 			status = C_BOOT_COMPLETED
 	elif status == C_BOOT_COMPLETED:

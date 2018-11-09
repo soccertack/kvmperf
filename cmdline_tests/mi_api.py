@@ -82,7 +82,12 @@ def handle_mi_options(lx_cmd, mi, mi_role):
 
 	return lx_cmd
 
-def boot_nvm(iovirt, posted, level, mi, mi_role):
+def boot_nvm(params):
+	iovirt = params.iovirt
+	posted = params.posted
+	level = params.level
+	mi = params.mi
+	mi_role = params.mi_role
 
 	boot_l1(iovirt, posted, level, mi)
 
@@ -147,6 +152,7 @@ def get_params(hostname):
 			posted = params.posted
 			mi = params.mi
 			mi_role = params.mi_role
+			return params
 
 	else:
 		print ("We don't have param file")
@@ -194,7 +200,7 @@ def get_params(hostname):
 		with open(EXP_PARAMS_PKL, 'wb') as output:
 			pickle.dump(new_params, output)
 
-	return level, iovirt, posted, mi, mi_role
+		return new_params
 
 
 ## MAIN
@@ -203,7 +209,7 @@ hostname = os.popen('hostname | cut -d . -f1').read().strip()
 if hostname == "kvm-dest":
     l1_addr = "10.10.1.110"
 
-level, iovirt, posted, mi, mi_role = get_params(hostname)
+params = get_params(hostname)
 
 child = pexpect.spawn('bash')
 #https://stackoverflow.com/questions/29245269/pexpect-echoes-sendline-output-twice-causing-unwanted-characters-in-buffer
