@@ -37,8 +37,8 @@ def handle_recv(c, buf):
 	elif status == C_BOOT_COMPLETED:
 		if buf == MSG_MIGRATE:
 			print "start migration"
-			child.sendline('migrate_set_speed 4095m')
-			child.expect('\(qemu\)')
+#			child.sendline('migrate_set_speed 4095m')
+#			child.expect('\(qemu\)')
 			child.sendline('migrate -d tcp:10.10.1.110:5555')
 			child.expect('\(qemu\)')
 
