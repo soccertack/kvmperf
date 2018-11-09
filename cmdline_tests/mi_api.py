@@ -27,6 +27,7 @@ mi_src = " -s"
 mi_dest = " -t"
 LOCAL_SOCKET = 8890
 l1_addr='10.10.1.100'
+hostname=''
 
 ###############################
 #### set default here #########
@@ -49,7 +50,7 @@ cmd_vfio = './run-guest-vfio.sh'
 cmd_viommu = './run-guest-viommu.sh'
 cmd_vfio_viommu = './run-guest-vfio-viommu.sh'
 
-def boot_l1(params):
+def boot_l1(child, params):
 	iovirt = params.iovirt
 	posted = params.posted
 	level = params.level
@@ -86,13 +87,13 @@ def handle_mi_options(lx_cmd, mi, mi_role):
 
 	return lx_cmd
 
-def boot_nvm(params):
+def boot_nvm(child, params):
 	iovirt = params.iovirt
 	level = params.level
 	mi = params.mi
 	mi_role = params.mi_role
 
-	boot_l1(params)
+	boot_l1(child, params)
 
 	mylevel = 1
 	while (mylevel < level):
@@ -207,22 +208,35 @@ def get_params(hostname):
 
 		return new_params
 
+def set_l1_addr(hostname):
+	global l1_addr
+	if hostname == "kvm-dest":
+		l1_addr = "10.10.1.110"
+	
+def create_child(hostname):
+	global g_child
 
-## MAIN
+	child = pexpect.spawn('bash')
+	child.logfile_read=sys.stdout
+	child.timeout=None
 
-hostname = os.popen('hostname | cut -d . -f1').read().strip()
-if hostname == "kvm-dest":
-    l1_addr = "10.10.1.110"
+	child.sendline('')
+	wait_for_prompt(child, hostname)
 
-params = get_params(hostname)
+	g_child = child
+	return child
 
-child = pexpect.spawn('bash')
-#https://stackoverflow.com/questions/29245269/pexpect-echoes-sendline-output-twice-causing-unwanted-characters-in-buffer
-#child.logfile = sys.stdout
-child.logfile_read=sys.stdout
-child.timeout=None
+def get_child():
+	global g_child
+	return g_child
 
-child.sendline('')
-wait_for_prompt(child, hostname)
-#boot_nvm(iovirt, posted, level, mi, mi_role)
+def init():
+	global hostname
 
+	hostname = os.popen('hostname | cut -d . -f1').read().strip()
+	params = get_params(hostname)
+	set_l1_addr(hostname)
+
+	child = create_child(hostname)
+
+	return child, params
