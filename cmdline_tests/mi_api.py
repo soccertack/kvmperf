@@ -7,6 +7,7 @@ import datetime
 import time
 import socket
 import argparse
+import os.path
 
 l0_migration_qemu  = ' --qemu /sdc/L0-qemu/'
 l1_migration_qemu = ' --qemu /sdc/L1-qemu/'
@@ -113,45 +114,63 @@ def reboot(iovirt, posted, level, mi, mi_role):
 	halt(level)
 	boot_nvm(iovirt, posted, level, mi, mi_role)
 
+EXP_PARAMS="./.exp_params"
+def get_params(hostname):
+	if os.path.exists(EXP_PARAMS):
+		print ("We have param file")
+	else:
+		print ("We don't have param file")
+
+		level  = int(raw_input("Enter virtualization level [2]: ") or "2")
+		if level < 1:
+			print ("We don't (need to) support L0")
+			sys.exit(0)
+		if level > 3:
+			print ("Are you sure to run virt level %d?" % level)
+			sleep(5)
+
+# iovirt: pv, pt(pass-through), or vp(virtual-passthough)
+		iovirt = raw_input("Enter I/O virtualization level [%s]: " % io_default) or io_default
+		if iovirt not in ["pv", "pt", "vp"]:
+			print ("Enter pv, pt, or vp")
+			sys.exit(0)
+
+		posted = False
+		if iovirt == "vp":
+			posted = raw_input("Enable posted-interrupts in vIOMMU? [no]: ") or "no"
+			if posted == "no":
+				posted = False
+			else:
+				posted = True
+
+
+		mi_role = ""
+		mi = raw_input("Migration? [%s]: " % mi_default) or mi_default
+		if mi not in ["no", "l2"]:
+			print ("Enter no or l2")
+			sys.exit(0)
+		elif mi == "l2":
+			if hostname == "kvm-dest":
+				mi_role = 'dest'
+			else:
+				mi_role = 'src'
+
+		return level, iovirt, posted, mi, mi_role
+	# Check if .mi_params
+	# then use the params
+	# else
+	# get it from command line
+	# and save it to the .mi_paraps
+	return
+
+
 ## MAIN
 
 hostname = os.popen('hostname | cut -d . -f1').read().strip()
 if hostname == "kvm-dest":
     l1_addr = "10.10.1.110"
 
-level  = int(raw_input("Enter virtualization level [2]: ") or "2")
-if level < 1:
-	print ("We don't (need to) support L0")
-	sys.exit(0)
-if level > 3:
-	print ("Are you sure to run virt level %d?" % level)
-	sleep(5)
-
-# iovirt: pv, pt(pass-through), or vp(virtual-passthough)
-iovirt = raw_input("Enter I/O virtualization level [%s]: " % io_default) or io_default
-if iovirt not in ["pv", "pt", "vp"]:
-	print ("Enter pv, pt, or vp")
-	sys.exit(0)
-
-if iovirt == "vp":
-	posted = raw_input("Enable posted-interrupts in vIOMMU? [no]: ") or "no"
-	if posted == "no":
-		posted = False
-	else:
-		posted = True
-
-
-mi_role = ""
-mi = raw_input("Migration? [%s]: " % mi_default) or mi_default
-if mi not in ["no", "l2"]:
-	print ("Enter no or l2")
-	sys.exit(0)
-elif mi == "l2":
-	if hostname == "kvm-dest":
-		mi_role = 'dest'
-	else:
-		mi_role = 'src'
-
+level, iovirt, posted, mi, mi_role = get_params(hostname)
 
 child = pexpect.spawn('bash')
 #https://stackoverflow.com/questions/29245269/pexpect-echoes-sendline-output-twice-causing-unwanted-characters-in-buffer
