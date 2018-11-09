@@ -114,10 +114,27 @@ def reboot(iovirt, posted, level, mi, mi_role):
 	halt(level)
 	boot_nvm(iovirt, posted, level, mi, mi_role)
 
+def str_to_bool(s):
+	if s == 'True':
+		return True
+	elif s == 'False':
+		return False
+	else:
+		print (s)
+		raise ValueError
+
 EXP_PARAMS="./.exp_params"
 def get_params(hostname):
 	if os.path.exists(EXP_PARAMS):
 		print ("We have param file")
+		f = open(EXP_PARAMS, "r")
+		level = int(f.readline().rstrip('\n'))
+		iovirt = f.readline().rstrip('\n')
+		posted = str_to_bool(f.readline().rstrip('\n'))
+		mi = f.readline().rstrip('\n')
+		mi_role = f.readline().rstrip('\n')
+
+		f.close()
 	else:
 		print ("We don't have param file")
 
@@ -155,13 +172,16 @@ def get_params(hostname):
 			else:
 				mi_role = 'src'
 
-		return level, iovirt, posted, mi, mi_role
-	# Check if .mi_params
-	# then use the params
-	# else
-	# get it from command line
-	# and save it to the .mi_paraps
-	return
+
+		f = open(EXP_PARAMS, "w")
+		f.write(str(level)+"\n")
+		f.write(iovirt+"\n")
+		f.write(str(posted)+"\n")
+		f.write(mi+"\n")
+		f.write(mi_role+"\n")
+		f.close()
+
+	return level, iovirt, posted, mi, mi_role
 
 
 ## MAIN
