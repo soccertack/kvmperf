@@ -55,12 +55,10 @@ def handle_mi_options(vm_level, lx_cmd, params):
 	# For L2 VP migration, we use special QEMUs at L0 and L1
 	if vm_level == 1 and params.iovirt == 'vp' and params.mi == "l2":
 		lx_cmd += l0_migration_qemu
-		print ("l0 migration qemu")
 	
 	# This can be checking the last level VM for Ln VP migration...
 	if vm_level == 2 and params.iovirt == 'vp' and params.mi == "l2":
 		lx_cmd += l1_migration_qemu
-		print ("l1 migration qemu")
 
 	if vm_level == params.level:
 		# BTW, this is the only place to use mi_role
@@ -69,7 +67,6 @@ def handle_mi_options(vm_level, lx_cmd, params):
 		else:
 			lx_cmd += mi_dest
 
-	print ("after handle mi")
 	print (lx_cmd)
 
 	return lx_cmd
@@ -98,8 +95,6 @@ def get_base_cmd(vm_level):
 def get_iovirt_cmd(vm_level, lx_cmd, params):
 	iovirt = params.iovirt
 
-	print (vm_level)
-	print (iovirt)
 	if vm_level == 1 and iovirt == "vp":
 		lx_cmd += cmd_viommu
 	elif iovirt == "vp" or iovirt == "pt":
@@ -121,19 +116,16 @@ def boot_vms(child, params):
 		vm_level += 1
 
 		lx_cmd = get_base_cmd(vm_level)
-		print (lx_cmd)
 		lx_cmd = get_iovirt_cmd(vm_level, lx_cmd, params)
-		print (lx_cmd)
 		lx_cmd = add_special_options(vm_level, lx_cmd, params)
-		print ("after special options")
 		print (lx_cmd)
 
-		#child.sendline(lx_cmd)
+		child.sendline(lx_cmd)
 
-		#if mi:
-		#	child.expect('\(qemu\)')
-		#else:
-		#	child.expect('L' + str(vm_level) + '.*$')
+		if mi:
+			child.expect('\(qemu\)')
+		else:
+			child.expect('L' + str(vm_level) + '.*$')
 
 	time.sleep(2)
 	pin_vcpus(level)
