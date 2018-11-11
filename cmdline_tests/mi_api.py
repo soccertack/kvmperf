@@ -13,10 +13,10 @@ import pickle
 class Params:
 	def __init__(self):
 		self.level = 0
-		self.iovirt = "none"
+		self.iovirt = None
 		self.posted = False
-		mi = "none"
-		mi_role = "none"
+		mi = None
+		mi_role = None
 
 	def __str__(self):
 		return str(self.__class__) + ": " + str(self.__dict__)
@@ -50,84 +50,96 @@ cmd_vfio = './run-guest-vfio.sh'
 cmd_viommu = './run-guest-viommu.sh'
 cmd_vfio_viommu = './run-guest-vfio-viommu.sh'
 
-def handle_mi_options(curr_level, lx_cmd, mi, mi_role):
+def handle_mi_options(vm_level, lx_cmd, params):
 
-	if curr_level == 1:
-		if mi == "l2":
-			lx_cmd += l0_migration_qemu
+	# For L2 VP migration, we use special QEMUs at L0 and L1
+	if vm_level == 1 and params.iovirt == 'vp' and params.mi == "l2":
+		lx_cmd += l0_migration_qemu
+		print ("l0 migration qemu")
+	
+	# This can be checking the last level VM for Ln VP migration...
+	if vm_level == 2 and params.iovirt == 'vp' and params.mi == "l2":
+		lx_cmd += l1_migration_qemu
+		print ("l1 migration qemu")
 
-	if curr_level == 2:
-		if mi == "l2":
-			lx_cmd += l1_migration_qemu
-			if mi_role == "src":
-				lx_cmd += mi_src
-			else:
-				lx_cmd += mi_dest
+	if vm_level == params.level:
+		# BTW, this is the only place to use mi_role
+		if params.mi_role == "src":
+			lx_cmd += mi_src
+		else:
+			lx_cmd += mi_dest
+
+	print ("after handle mi")
+	print (lx_cmd)
 
 	return lx_cmd
 
-def boot_l1(child, params):
-	iovirt = params.iovirt
-	posted = params.posted
-	level = params.level
-	mi = params.mi
+def handle_pi_options(vm_level, lx_cmd, params):
+	# We could support pt as well.
+	if vm_level == 1 and params.iovirt == 'vp' and params.posted:
+		lx_cmd += " --pi"
 
-	curr_level = 1
+	return lx_cmd
 
-	l0_cmd = 'cd /srv/vm && '
-	if iovirt == "vp":
-		l0_cmd += cmd_viommu
-		l0_cmd = handle_mi_options(curr_level, l0_cmd, mi, mi_role)
-	elif iovirt == "pv":
-		l0_cmd += cmd_pv
-	elif iovirt == "pt":
-		if level == 1:
-			l0_cmd += cmd_vfio
-		else:
-			l0_cmd += cmd_vfio_viommu
+def add_special_options(vm_level, lx_cmd, params):
+	lx_cmd = handle_pi_options(vm_level, lx_cmd, params)
+	lx_cmd = handle_mi_options(vm_level, lx_cmd, params)
 
-	if posted:
-		l0_cmd += " --pi"
-	
-	child.sendline(l0_cmd)
+	return lx_cmd
 
-	child.expect('L1.*$')
-
-
-def boot_nvm(child, params):
-	iovirt = params.iovirt
-	level = params.level
-	mi = params.mi
-	mi_role = params.mi_role
-
-	boot_l1(child, params)
-
-	mylevel = 1
-	while (mylevel < level):
-		mylevel += 1
-
+def get_base_cmd(vm_level):
+	if vm_level == 1:
+		lx_cmd = 'cd /srv/vm && '
+	else:
 		lx_cmd = 'cd ~/vm && '
-		if iovirt == "vp" or iovirt == "pt":
-			if mylevel == level:
-				lx_cmd += cmd_vfio
-			else:
-				lx_cmd += cmd_vfio_viommu
-		else:
-			lx_cmd += cmd_pv
 
-		if mylevel == level:
-			lx_cmd = handle_mi_options(mylevel, lx_cmd, mi, mi_role)
+	return lx_cmd
 
-		child.sendline(lx_cmd)
-		if mi == "l2":
-			child.expect('\(qemu\)')
+def get_iovirt_cmd(vm_level, lx_cmd, params):
+	iovirt = params.iovirt
+
+	print (vm_level)
+	print (iovirt)
+	if vm_level == 1 and iovirt == "vp":
+		lx_cmd += cmd_viommu
+	elif iovirt == "vp" or iovirt == "pt":
+		if vm_level == params.level:
+			lx_cmd += cmd_vfio
 		else:
-			child.expect('L' + str(mylevel) + '.*$')
+			lx_cmd += cmd_vfio_viommu
+	else:
+		lx_cmd += cmd_pv
+
+	return lx_cmd
+
+def boot_vms(child, params):
+	level = params.level
+	mi = params.mi
+
+	vm_level = 0
+	while (vm_level < level):
+		vm_level += 1
+
+		lx_cmd = get_base_cmd(vm_level)
+		print (lx_cmd)
+		lx_cmd = get_iovirt_cmd(vm_level, lx_cmd, params)
+		print (lx_cmd)
+		lx_cmd = add_special_options(vm_level, lx_cmd, params)
+		print ("after special options")
+		print (lx_cmd)
+
+		#child.sendline(lx_cmd)
+
+		#if mi:
+		#	child.expect('\(qemu\)')
+		#else:
+		#	child.expect('L' + str(vm_level) + '.*$')
 
 	time.sleep(2)
 	pin_vcpus(level)
 	time.sleep(2)
 
+#depricated for now
 def halt(level):
 	if level > 2:
 		os.system('ssh root@10.10.1.102 "halt -p"')
@@ -140,6 +152,7 @@ def halt(level):
 	os.system('ssh root@%s "halt -p"' % l1_addr)
 	wait_for_prompt(child, hostname)
 
+#depricated for now
 def reboot(params):
 	halt(params.level)
 	boot_nvm(params)
@@ -199,10 +212,10 @@ def get_params(hostname):
 
 		mi_role = ""
 		mi = raw_input("Migration? [%s]: " % mi_default) or mi_default
-		if mi not in ["no", "l2"]:
-			print ("Enter no or l2")
+		if mi not in ["no", "l1", "l2"]:
+			print ("Enter no or l1 or l2")
 			sys.exit(0)
-		elif mi == "l2":
+		elif mi in ["l1", "l2"]:
 			if hostname == "kvm-dest":
 				mi_role = 'dest'
 			else:

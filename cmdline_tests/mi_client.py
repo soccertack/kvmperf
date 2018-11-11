@@ -33,7 +33,7 @@ def handle_recv(c, buf):
 	if status == C_WAIT_FOR_BOOT_CMD:
 		if buf == MSG_BOOT:
 			child, params = mi_api.init()
-			mi_api.boot_nvm(child, params)
+			mi_api.boot_vms(child, params)
 			c.send(MSG_BOOT_COMPLETED)
 			status = C_BOOT_COMPLETED
 	elif status == C_BOOT_COMPLETED:
