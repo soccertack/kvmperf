@@ -50,17 +50,34 @@ cmd_vfio = './run-guest-vfio.sh'
 cmd_viommu = './run-guest-viommu.sh'
 cmd_vfio_viommu = './run-guest-vfio-viommu.sh'
 
+def handle_mi_options(curr_level, lx_cmd, mi, mi_role):
+
+	if curr_level == 1:
+		if mi == "l2":
+			lx_cmd += l0_migration_qemu
+
+	if curr_level == 2:
+		if mi == "l2":
+			lx_cmd += l1_migration_qemu
+			if mi_role == "src":
+				lx_cmd += mi_src
+			else:
+				lx_cmd += mi_dest
+
+	return lx_cmd
+
 def boot_l1(child, params):
 	iovirt = params.iovirt
 	posted = params.posted
 	level = params.level
 	mi = params.mi
 
+	curr_level = 1
+
 	l0_cmd = 'cd /srv/vm && '
 	if iovirt == "vp":
 		l0_cmd += cmd_viommu
-		if mi == "l2":
-			l0_cmd += l0_migration_qemu
+		l0_cmd = handle_mi_options(curr_level, l0_cmd, mi, mi_role)
 	elif iovirt == "pv":
 		l0_cmd += cmd_pv
 	elif iovirt == "pt":
@@ -76,16 +93,6 @@ def boot_l1(child, params):
 
 	child.expect('L1.*$')
 
-def handle_mi_options(lx_cmd, mi, mi_role):
-
-	if mi == "l2":
-		lx_cmd += l1_migration_qemu
-		if mi_role == "src":
-			lx_cmd += mi_src
-		else:
-			lx_cmd += mi_dest
-
-	return lx_cmd
 
 def boot_nvm(child, params):
 	iovirt = params.iovirt
@@ -109,7 +116,7 @@ def boot_nvm(child, params):
 			lx_cmd += cmd_pv
 
 		if mylevel == level:
-			lx_cmd = handle_mi_options(lx_cmd, mi, mi_role)
+			lx_cmd = handle_mi_options(mylevel, lx_cmd, mi, mi_role)
 
 		child.sendline(lx_cmd)
 		if mi == "l2":
