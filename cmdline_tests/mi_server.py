@@ -109,11 +109,13 @@ def boot_nvm(conn):
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 print ("Try to bind...")
-try:
-	s.bind(('', PORT))
-except socket.error:
-	print ("Bind error. Try again")
-	sys.exit(0)
+while True:
+	try:
+		s.bind(('', PORT))
+		break;
+	except socket.error:
+		print ("Bind error. Try again")
+		time.sleep(1)
 print ("Done.")
 
 print ("Try to listen...")
