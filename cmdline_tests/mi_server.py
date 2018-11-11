@@ -83,6 +83,8 @@ def handle_recv(conn, data):
 		ping_l2()
 		print ("Ping was successful. Wait for 10 sec")
 		time.sleep(10)
+		
+		raw_input("Enter when you are ready to do migration") 
 
 		src_conn = get_src_conn()
 		src_conn.send(MSG_MIGRATE)
