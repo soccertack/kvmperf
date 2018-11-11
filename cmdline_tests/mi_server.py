@@ -102,6 +102,7 @@ def handle_recv(conn, data):
 			time.sleep(2)
 			print("send messages to terminate VMs")
 			terminate_all()
+			server_status = S_MIGRAION_END
 			
 
 def boot_nvm(conn):
@@ -154,6 +155,8 @@ while inputs:
 			data = item.recv(size)
 			if data:
 				handle_recv(item, data)
+				if server_status == S_MIGRAION_END:
+					sys.exit(0)
 			else:
 				print(conn_status[item][IDX_IP_ADDR])
 				print ('Connection closed')
