@@ -42,7 +42,8 @@ def handle_recv(c, buf):
 			child = mi_api.get_child()
 #			child.sendline('migrate_set_speed 4095m')
 #			child.expect('\(qemu\)')
-			child.sendline('migrate -d tcp:10.10.1.110:5555')
+			#child.sendline('migrate -d tcp:10.10.1.110:5555')
+			child.sendline('migrate -d tcp:10.10.1.3:5555')
 			child.expect('\(qemu\)')
 
 			while True:
@@ -60,12 +61,13 @@ def handle_recv(c, buf):
 
 	if buf == MSG_TERMINATE:
 		child = mi_api.get_child()
+		# TODO handle this for L1
 		print ("Terminate VM.")
 		child.sendline('stop')
 		child.expect('\(qemu\)')
 		child.sendline('q')
-		child.expect('L1.*$')
-		child.sendline('h')
+#		child.expect('L1.*$')
+#		child.sendline('h')
 		status = C_TERMINATED
 		mi_api.wait_for_prompt(child, mi_api.hostname)
 
