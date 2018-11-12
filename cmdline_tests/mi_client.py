@@ -41,8 +41,8 @@ def handle_recv(c, buf):
 	print buf + " is received"
 	if status == C_WAIT_FOR_BOOT_CMD:
 		if buf == MSG_BOOT:
-			child, params = mi_api.init()
-			mi_api.boot_vms(child, params)
+			mi_api.init()
+			mi_api.boot_vms()
 			c.send(MSG_BOOT_COMPLETED)
 			status = C_BOOT_COMPLETED
 	elif status == C_BOOT_COMPLETED:
@@ -69,6 +69,7 @@ def handle_recv(c, buf):
 			status = C_MIGRATION_COMPLETED
 
 	if buf == MSG_TERMINATE:
+		mi_api.terminate_vms()
 		child = mi_api.get_child()
 		# TODO handle this for L1
 		print ("Terminate VM.")
