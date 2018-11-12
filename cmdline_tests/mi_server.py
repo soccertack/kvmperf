@@ -98,11 +98,11 @@ def handle_recv(conn, data):
 			print ("Ping was successful after migration")
 
 			print("migration is completed")
-			print("Collect migration result")
-			time.sleep(2)
 			print("send messages to terminate VMs")
 			terminate_all()
 			server_status = S_MIGRAION_END
+			print("Wait 10 sec until clients are terminated")
+			time.sleep(10)
 			
 
 def boot_nvm(conn):
