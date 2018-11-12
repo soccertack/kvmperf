@@ -41,18 +41,24 @@ def handle_recv(c, buf):
 	print buf + " is received"
 	if status == C_WAIT_FOR_BOOT_CMD:
 		if buf == MSG_BOOT:
-			child, params = mi_api.init()
-			mi_api.boot_vms(child, params)
+			mi_api.init()
+			mi_api.boot_vms()
 			c.send(MSG_BOOT_COMPLETED)
 			status = C_BOOT_COMPLETED
 	elif status == C_BOOT_COMPLETED:
 		if buf == MSG_MIGRATE:
 			print "start migration"
 			child = mi_api.get_child()
+			mi = mi_api.get_mi_level()
 #			child.sendline('migrate_set_speed 4095m')
 #			child.expect('\(qemu\)')
-			#child.sendline('migrate -d tcp:10.10.1.110:5555')
-			child.sendline('migrate -d tcp:10.10.1.3:5555')
+			if mi == 'l2':
+				child.sendline('migrate -d tcp:10.10.1.110:5555')
+			elif mi == 'l1':
+				child.sendline('migrate -d tcp:10.10.1.3:5555')
+			else:
+				print("Error: mi is " + mi)
+				sys.exit(1)
 			child.expect('\(qemu\)')
 
 			while True:
@@ -69,16 +75,8 @@ def handle_recv(c, buf):
 			status = C_MIGRATION_COMPLETED
 
 	if buf == MSG_TERMINATE:
-		child = mi_api.get_child()
-		# TODO handle this for L1
-		print ("Terminate VM.")
-		child.sendline('stop')
-		child.expect('\(qemu\)')
-		child.sendline('q')
-#		child.expect('L1.*$')
-#		child.sendline('h')
+		mi_api.terminate_vms()
 		status = C_TERMINATED
-		mi_api.wait_for_prompt(child, mi_api.hostname)
 
 def main():
 	global status

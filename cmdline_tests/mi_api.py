@@ -28,13 +28,15 @@ mi_dest = " -t"
 LOCAL_SOCKET = 8890
 l1_addr='10.10.1.100'
 hostname=''
+params=None
+g_child=None
 
 ###############################
 #### set default here #########
 mi_default = "l2"
 io_default = "vp"
 ###############################
-def wait_for_prompt(child, hostname):
+def wait_for_prompt(child):
     child.expect('%s.*#' % hostname)
 
 def pin_vcpus(level):
@@ -50,7 +52,7 @@ cmd_vfio = './run-guest-vfio.sh'
 cmd_viommu = './run-guest-viommu.sh'
 cmd_vfio_viommu = './run-guest-vfio-viommu.sh'
 
-def handle_mi_options(vm_level, lx_cmd, params):
+def handle_mi_options(vm_level, lx_cmd):
 
 	# For L2 VP migration, we use special QEMUs at L0 and L1
 	if vm_level == 1 and params.iovirt == 'vp' and params.mi == "l2":
@@ -67,20 +69,18 @@ def handle_mi_options(vm_level, lx_cmd, params):
 		else:
 			lx_cmd += mi_dest
 
-	print (lx_cmd)
-
 	return lx_cmd
 
-def handle_pi_options(vm_level, lx_cmd, params):
+def handle_pi_options(vm_level, lx_cmd):
 	# We could support pt as well.
 	if vm_level == 1 and params.iovirt == 'vp' and params.posted:
 		lx_cmd += " --pi"
 
 	return lx_cmd
 
-def add_special_options(vm_level, lx_cmd, params):
-	lx_cmd = handle_pi_options(vm_level, lx_cmd, params)
-	lx_cmd = handle_mi_options(vm_level, lx_cmd, params)
+def add_special_options(vm_level, lx_cmd):
+	lx_cmd = handle_pi_options(vm_level, lx_cmd)
+	lx_cmd = handle_mi_options(vm_level, lx_cmd)
 
 	return lx_cmd
 
@@ -92,7 +92,7 @@ def get_base_cmd(vm_level):
 
 	return lx_cmd
 
-def get_iovirt_cmd(vm_level, lx_cmd, params):
+def get_iovirt_cmd(vm_level, lx_cmd):
 	iovirt = params.iovirt
 
 	if vm_level == 1 and iovirt == "vp":
@@ -107,22 +107,25 @@ def get_iovirt_cmd(vm_level, lx_cmd, params):
 
 	return lx_cmd
 
-def boot_vms(child, params):
+def boot_vms():
 	level = params.level
 	mi = params.mi
+	child = g_child
 
 	vm_level = 0
 	while (vm_level < level):
 		vm_level += 1
 
 		lx_cmd = get_base_cmd(vm_level)
-		lx_cmd = get_iovirt_cmd(vm_level, lx_cmd, params)
-		lx_cmd = add_special_options(vm_level, lx_cmd, params)
+		lx_cmd = get_iovirt_cmd(vm_level, lx_cmd)
+		lx_cmd = add_special_options(vm_level, lx_cmd)
 		print (lx_cmd)
 
 		child.sendline(lx_cmd)
 
-		if mi:
+		if mi == "l2" and vm_level == 2:
+			child.expect('\(qemu\)')
+		elif mi == "l1" and vm_level == 1:
 			child.expect('\(qemu\)')
 		else:
 			child.expect('L' + str(vm_level) + '.*$')
@@ -142,13 +145,25 @@ def halt(level):
 		child.expect('L1.*$')
 
 	os.system('ssh root@%s "halt -p"' % l1_addr)
-	wait_for_prompt(child, hostname)
+	wait_for_prompt(child)
 
 #depricated for now
 def reboot(params):
 	halt(params.level)
 	boot_nvm(params)
 
+def terminate_vms():
+	print ("Terminate VM.")
+
+	child = g_child
+	if params.level == 2 and params.mi == 'l2':
+		child.sendline('stop')
+		child.expect('\(qemu\)')
+		child.sendline('q')
+		child.expect('L1.*$')
+		child.sendline('h')
+		wait_for_prompt(g_child)
+	
 def str_to_bool(s):
 	if s == 'True':
 		return True
@@ -159,19 +174,13 @@ def str_to_bool(s):
 		raise ValueError
 
 EXP_PARAMS_PKL="./.exp_params.pkl"
-def get_params(hostname):
-	if os.path.exists(EXP_PARAMS_PKL):
+def set_params():
+	global params
 
+	if os.path.exists(EXP_PARAMS_PKL):
 		with open(EXP_PARAMS_PKL, 'rb') as input:
 			params = pickle.load(input)
 			print(params)
-			level = params.level
-			iovirt = params.iovirt
-			posted = params.posted
-			mi = params.mi
-			mi_role = params.mi_role
-			return params
-
 	else:
 		print ("We don't have param file")
 		new_params = Params()
@@ -218,14 +227,15 @@ def get_params(hostname):
 		with open(EXP_PARAMS_PKL, 'wb') as output:
 			pickle.dump(new_params, output)
 
+		params = new_params
 		return new_params
 
-def set_l1_addr(hostname):
+def set_l1_addr():
 	global l1_addr
 	if hostname == "kvm-dest":
 		l1_addr = "10.10.1.110"
 	
-def create_child(hostname):
+def create_child():
 	global g_child
 
 	child = pexpect.spawn('bash')
@@ -233,7 +243,7 @@ def create_child(hostname):
 	child.timeout=None
 
 	child.sendline('')
-	wait_for_prompt(child, hostname)
+	wait_for_prompt(child)
 
 	g_child = child
 	return child
@@ -242,13 +252,16 @@ def get_child():
 	global g_child
 	return g_child
 
+def get_mi_level():
+	return params.mi
+
 def init():
 	global hostname
 
 	hostname = os.popen('hostname | cut -d . -f1').read().strip()
-	params = get_params(hostname)
-	set_l1_addr(hostname)
+	set_params()
+	set_l1_addr()
 
-	child = create_child(hostname)
+	child = create_child()
 
-	return child, params
+	return child
