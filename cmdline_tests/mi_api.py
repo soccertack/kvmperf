@@ -251,6 +251,9 @@ def get_child():
 	global g_child
 	return g_child
 
+def get_mi_level():
+	return params.mi
+
 def init():
 	global hostname
 
