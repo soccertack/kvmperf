@@ -155,6 +155,7 @@ def reboot(params):
 def terminate_vms():
 	print ("Terminate VM.")
 
+	child = g_child
 	if params.level == 2 and params.mi == 'l2':
 		child.sendline('stop')
 		child.expect('\(qemu\)')
