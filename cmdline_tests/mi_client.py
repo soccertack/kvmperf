@@ -22,7 +22,16 @@ status = C_NULL
 def connect_to_server():
 	print("Trying to connect to the server")
 	clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	clientsocket.connect(('10.10.1.1', PORT))
+
+	while True:
+		try:
+			clientsocket.connect(('10.10.1.1', PORT))
+			break;
+		except:
+			print ('connect error. Try again')
+			time.sleep(1)
+
+
 	print("Connected")
 	return clientsocket
 
