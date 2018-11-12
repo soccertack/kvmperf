@@ -152,8 +152,17 @@ def reboot(params):
 	halt(params.level)
 	boot_nvm(params)
 
-#def terminate_vms():
+def terminate_vms():
+	print ("Terminate VM.")
 
+	if params.level == 2 and params.mi == 'l2':
+		child.sendline('stop')
+		child.expect('\(qemu\)')
+		child.sendline('q')
+		child.expect('L1.*$')
+		child.sendline('h')
+		wait_for_prompt(g_child)
+	
 def str_to_bool(s):
 	if s == 'True':
 		return True

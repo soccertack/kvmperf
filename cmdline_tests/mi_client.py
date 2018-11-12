@@ -70,16 +70,7 @@ def handle_recv(c, buf):
 
 	if buf == MSG_TERMINATE:
 		mi_api.terminate_vms()
-		child = mi_api.get_child()
-		# TODO handle this for L1
-		print ("Terminate VM.")
-		child.sendline('stop')
-		child.expect('\(qemu\)')
-		child.sendline('q')
-#		child.expect('L1.*$')
-#		child.sendline('h')
 		status = C_TERMINATED
-		mi_api.wait_for_prompt(child, mi_api.hostname)
 
 def main():
 	global status
