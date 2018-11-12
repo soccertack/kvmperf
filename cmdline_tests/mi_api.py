@@ -163,6 +163,12 @@ def terminate_vms():
 		child.expect('L1.*$')
 		child.sendline('h')
 		wait_for_prompt(g_child)
+
+	if params.level == 1 and params.mi == 'l1':
+		child.sendline('stop')
+		child.expect('\(qemu\)')
+		child.sendline('q')
+		wait_for_prompt(g_child)
 	
 def str_to_bool(s):
 	if s == 'True':
