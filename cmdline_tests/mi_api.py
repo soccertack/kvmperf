@@ -183,12 +183,16 @@ EXP_PARAMS_PKL="./.exp_params.pkl"
 def set_params():
 	global params
 
-	if os.path.exists(EXP_PARAMS_PKL):
+	exist = os.path.exists(EXP_PARAMS_PKL)
+	reuse_param = 'y'
+	if exist:
 		with open(EXP_PARAMS_PKL, 'rb') as input:
 			params = pickle.load(input)
 			print(params)
-	else:
-		print ("We don't have param file")
+
+			reuse_param = raw_input("Want to proceed with the params?[y/n] ") or 'y'
+
+	if not exist or reuse_param != 'y':
 		new_params = Params()
 
 		level  = int(raw_input("Enter virtualization level [2]: ") or "2")
