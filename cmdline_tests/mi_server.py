@@ -84,6 +84,10 @@ def handle_recv(conn, data):
 		print ("Ping was successful. Wait for 10 sec")
 		time.sleep(10)
 		
+		service = raw_input("Enter any service you want to start in the nVM: ") 
+
+		os.system("ssh root@10.10.1.101 service %s start" % service)
+
 		raw_input("Enter when you are ready to do migration") 
 
 		src_conn = get_src_conn()
