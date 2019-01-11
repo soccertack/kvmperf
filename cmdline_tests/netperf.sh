@@ -11,6 +11,8 @@ for _TEST in TCP_STREAM TCP_RR TCP_MAERTS ; do
 	if [[ "$TEST" != "ALL" && "$TEST" != "$_TEST" ]]; then
 		continue
 	fi
+	# Uncomment this to enable exit count capturing
+	#source exits.sh $_TEST L1
 	source exits.sh $_TEST
 	echo $_TEST >> $RESULTS
 	for i in `seq 1 $REPTS`; do
