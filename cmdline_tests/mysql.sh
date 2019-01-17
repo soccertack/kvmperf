@@ -29,7 +29,7 @@ function cleanup() {
 }
 
 function run() {
-	sysbench --test=oltp --max-requests=0 --oltp-table-size=$TABLE_SIZE --num-threads=$num_threads --mysql-host=$TARGET_IP --mysql-password=kvm run | tee \
+	sysbench --test=oltp --oltp-table-size=$TABLE_SIZE --num-threads=$num_threads --mysql-host=$TARGET_IP --mysql-password=kvm run | tee \
 	>(grep 'total time:' | awk '{ print $3 }' | sed 's/s//' >> $RESULTS)
 }
 
