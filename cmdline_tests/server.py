@@ -17,7 +17,7 @@ l1_addr='10.10.1.100'
 
 ###############################
 #### set default here #########
-mi_default = "l2"
+mi_default = "no"
 io_default = "vp"
 ###############################
 def wait_for_prompt(child, hostname):
