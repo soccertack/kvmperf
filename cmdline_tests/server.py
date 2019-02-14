@@ -133,6 +133,7 @@ if iovirt not in ["pv", "pt", "vp"]:
 	print ("Enter pv, pt, or vp")
 	sys.exit(0)
 
+posted = False
 if iovirt == "vp":
 	posted = raw_input("Enable posted-interrupts in vIOMMU? [no]: ") or "no"
 	if posted == "no":
