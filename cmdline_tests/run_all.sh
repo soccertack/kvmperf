@@ -32,6 +32,7 @@ function move_results()
 function ctrl_c()
 {
         echo "** Trapped CTRL-C"
+	mkdir $TEST_DESC/abort
 	move_results $TEST_DESC/abort
 }
 
