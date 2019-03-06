@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SRV=$1
-REPTS=${2-50}
+REPTS=${2-40}
 
 echo "Measuring performance of $SRV"
 
@@ -9,7 +9,7 @@ echo "Measuring performance of $SRV"
 NR_REQUESTS=100000
 RESULTS=apache.txt
 ab=/usr/bin/ab
-CMD="$ab -n $NR_REQUESTS -c 10 http://$SRV/gcc/index.html"
+CMD="$ab -t 10 -n $NR_REQUESTS -c 10 http://$SRV/gcc/index.html"
 
 source exits.sh apache
 
