@@ -86,11 +86,6 @@ function mem_check()
 	proceed "Have you consumed memory in L0?"
 }
 
-function swap_check()
-{
-	proceed "Have you turned off swap?"
-}
-
 function kernel_check()
 {
 	if [[ -z "$3" ]]; then
@@ -186,10 +181,28 @@ function irqbalance_check_all()
 	fi
 }
 
+SWAP_CMD="swapoff -a"
+function swap_off()
+{
+	ssh $2@$3 $SWAP_CMD
+}
+
+function swap_off_all()
+{
+	echo "Turning off swap"
+	swap_off L0 $USER $L0_IP
+	if [[ "$TEST_LEVEL" != "L0" ]]; then
+		swap_off L1 root $L1_IP
+	fi
+	if [[ "$TEST_LEVEL" == "L2" ]]; then
+		swap_off L2 root $L2_IP
+	fi
+}
+
 kernel_check_all
 trace_check_all
 qemu_check_all
 mem_check
-swap_check
+swap_off_all
 vcpu_pin_check
 irqbalance_check_all
