@@ -86,6 +86,11 @@ function mem_check()
 	proceed "Have you consumed memory in L0?"
 }
 
+function swap_check()
+{
+	proceed "Have you turned off swap?"
+}
+
 function kernel_check()
 {
 	if [[ -z "$3" ]]; then
@@ -185,5 +190,6 @@ kernel_check_all
 trace_check_all
 qemu_check_all
 mem_check
+swap_check
 vcpu_pin_check
 irqbalance_check_all
