@@ -182,7 +182,7 @@ print_target_tests
 setup_ip_kvmpath
 
 #TODO: ask before delete
-sudo rm *.txt
+sudo rm -f *.txt
 
 TESTS=( $TESTS )
 SERVICES=( $SERVICES )
