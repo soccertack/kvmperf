@@ -13,16 +13,6 @@ MACHINE=`uname -m`
 KERNEL=`uname -r`
 KERNEL_CMD='uname -r'
 
-C_KERNEL=$TEST_KERNEL
-L2_KERNEL=$TEST_KERNEL
-if [[ "$MACHINE" == "x86_64" ]]; then
-		L0_KERNEL=$TEST_KERNEL
-		L1_KERNEL=$TEST_KERNEL
-	else
-		L0_KERNEL=$TEST_KERNEL
-		L1_KERNEL=$TEST_KERNEL
-fi
-
 QEMU_CMD_x86='/srv/vm/qemu/x86_64-softmmu/qemu-system-x86_64 --version'
 QEMU_CMD_ARM='/srv/vm/qemu-system-aarch64 --version'
 QEMU_CMD_ARM_L1='/root/vm/qemu-system-aarch64 --version'
@@ -135,13 +125,13 @@ function check_all()
 
 function kernel_check_all()
 {
-	kernel_check $C_KERNEL Client
-	kernel_check $L0_KERNEL L0 $USER 10.10.1.2
+	kernel_check $TEST_KERNEL Client
+	kernel_check $TEST_KERNEL L0 $USER 10.10.1.2
 	if [[ "$TEST_LEVEL" != "L0" ]]; then
-		kernel_check $L1_KERNEL L1 root $L1_IP
+		kernel_check $TEST_KERNEL L1 root $L1_IP
 	fi
 	if [[ "$TEST_LEVEL" == "L2" ]]; then
-		kernel_check $L2_KERNEL L2 root $L2_IP
+		kernel_check $TEST_KERNEL L2 root $L2_IP
 	fi
 }
 
