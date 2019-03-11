@@ -152,12 +152,7 @@ function trace_check_all()
 
 function qemu_check_all()
 {
-	if [[ "$TEST_LEVEL" != "L0" ]]; then
-		qemu_check L0 $USER 10.10.1.2
-	fi
-	if [[ "$TEST_LEVEL" == "L2" ]]; then
-		qemu_check L1 root $L1_IP
-	fi
+	check_all_one_less qemu_check
 }
 
 function irqb_check()
