@@ -120,6 +120,19 @@ function qemu_check()
 	qemu_ok $MY_QEMU_VERSION
 }
 
+function check_all()
+{
+	fn=$1
+
+	$fn L0 $USER $L0_IP
+	if [[ "$TEST_LEVEL" != "L0" ]]; then
+		$fn L1 root $L1_IP
+	fi
+	if [[ "$TEST_LEVEL" == "L2" ]]; then
+		$fn L2 root $L2_IP
+	fi
+}
+
 function kernel_check_all()
 {
 	kernel_check $C_KERNEL Client
@@ -172,13 +185,7 @@ function irqb_check()
 function irqbalance_check_all()
 {
 	irqb_check Client
-	irqb_check L0 $USER 10.10.1.2
-	if [[ "$TEST_LEVEL" != "L0" ]]; then
-		irqb_check L1 root $L1_IP
-	fi
-	if [[ "$TEST_LEVEL" == "L2" ]]; then
-		irqb_check L2 root $L2_IP
-	fi
+	check_all irqb_check
 }
 
 SWAP_CMD="swapoff -a"
@@ -190,13 +197,7 @@ function swap_off()
 function swap_off_all()
 {
 	echo "Turning off swap"
-	swap_off L0 $USER $L0_IP
-	if [[ "$TEST_LEVEL" != "L0" ]]; then
-		swap_off L1 root $L1_IP
-	fi
-	if [[ "$TEST_LEVEL" == "L2" ]]; then
-		swap_off L2 root $L2_IP
-	fi
+	check_all swap_off
 }
 
 kernel_check_all
