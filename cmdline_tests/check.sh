@@ -126,24 +126,12 @@ function check_all()
 function kernel_check_all()
 {
 	kernel_check Client
-	kernel_check L0 $USER 10.10.1.2
-	if [[ "$TEST_LEVEL" != "L0" ]]; then
-		kernel_check L1 root $L1_IP
-	fi
-	if [[ "$TEST_LEVEL" == "L2" ]]; then
-		kernel_check L2 root $L2_IP
-	fi
+	check_all kernel_check
 }
 
 function trace_check_all()
 {
-	trace_check L0 $USER 10.10.1.2
-	if [[ "$TEST_LEVEL" != "L0" ]]; then
-		trace_check L1 root $L1_IP
-	fi
-	if [[ "$TEST_LEVEL" == "L2" ]]; then
-		trace_check L2 root $L2_IP
-	fi
+	check_all trace_check
 }
 
 function qemu_check_all()
