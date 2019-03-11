@@ -5,6 +5,7 @@ TEST_LEVEL=${1:-"L2"}
 L0_IP="10.10.1.2"
 L1_IP="10.10.1.100"
 L2_IP="10.10.1.101"
+L3_IP="10.10.1.102"
 #PP: PV-Passthrough
 L2_PP_IP="10.10.1.201"
 TEST_USER="root"

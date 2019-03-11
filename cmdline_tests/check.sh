@@ -5,7 +5,12 @@ TEST_KERNEL="4.18.0"
 TEST_QEMU="3.1.0"
 #########
 
-# L0, L1 or L2
+L_IP[0]="$L0_IP"
+L_IP[1]="$L1_IP"
+L_IP[2]="$L2_IP"
+L_IP[3]="$L3_IP"
+
+# L0 to L3. Can be extended to Lx easilly
 TEST_LEVEL=$1
 USER=root
 
@@ -113,14 +118,12 @@ function qemu_check()
 function check_all()
 {
 	fn=$1
+	level=${TEST_LEVEL: -1}
 
-	$fn L0 $USER $L0_IP
-	if [[ "$TEST_LEVEL" != "L0" ]]; then
-		$fn L1 root $L1_IP
-	fi
-	if [[ "$TEST_LEVEL" == "L2" ]]; then
-		$fn L2 root $L2_IP
-	fi
+	for i in `seq 0 $level`
+	do
+		$fn L${i} root ${L_IP[$i]}
+	done
 }
 
 function kernel_check_all()
