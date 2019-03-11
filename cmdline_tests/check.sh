@@ -128,6 +128,17 @@ function check_all()
 	done
 }
 
+# This checks everything except the target level
+function check_all_one_less()
+{
+	fn=$1
+
+	LOCAL_TEST_LEVEL=${2:-"$level"}
+	LOCAL_TEST_LEVEL=`expr $LOCAL_TEST_LEVEL - 1`
+
+	check_all $fn $LOCAL_TEST_LEVEL
+}
+
 function kernel_check_all()
 {
 	kernel_check Client
