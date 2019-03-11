@@ -1,8 +1,8 @@
 #!/bin/bash
 
 #########
-TEST_KERNEL="4.15.0"
-TEST_QEMU="2.11.0"
+TEST_KERNEL="4.18.0"
+TEST_QEMU="3.1.0"
 #########
 
 # L0, L1 or L2
