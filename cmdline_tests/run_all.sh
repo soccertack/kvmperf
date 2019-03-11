@@ -65,8 +65,10 @@ function setup_ip_kvmpath()
 		TARGET_IP=$L1_IP
 	elif [ $TEST_LEVEL == "L0" ] ; then
 		TARGET_IP=$L0_IP
+	elif [ $TEST_LEVEL == "L3" ] ; then
+		TARGET_IP=$L3_IP
 	else
-		echo "Usage: ./run_all [L0|L1|l2]"
+		echo "Usage: ./run_all [L0|L1|L2|L3]"
 		exit
 	fi
 	echo "TARGET IP: $TARGET_IP"
