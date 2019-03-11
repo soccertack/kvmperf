@@ -12,6 +12,8 @@ L_IP[3]="$L3_IP"
 
 # L0 to L3. Can be extended to Lx easilly
 TEST_LEVEL=$1
+# int version of test level
+level=${TEST_LEVEL: -1}
 USER=root
 
 MACHINE=`uname -m`
@@ -118,9 +120,9 @@ function qemu_check()
 function check_all()
 {
 	fn=$1
-	level=${TEST_LEVEL: -1}
+	LOCAL_TEST_LEVEL=${2:-"$level"}
 
-	for i in `seq 0 $level`
+	for i in `seq 0 $LOCAL_TEST_LEVEL`
 	do
 		$fn L${i} root ${L_IP[$i]}
 	done
