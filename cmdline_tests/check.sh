@@ -78,13 +78,13 @@ function mem_check()
 
 function kernel_check()
 {
-	if [[ -z "$3" ]]; then
+	if [[ -z "$2" ]]; then
 		MY_KERNEL=$KERNEL
 	else
-		MY_KERNEL=`ssh $3@$4 $KERNEL_CMD`
+		MY_KERNEL=`ssh $2@$3 $KERNEL_CMD`
 	fi
-	echo "$2 Kernel: $MY_KERNEL"
-	kernel_ok $MY_KERNEL $1
+	echo "$1 Kernel: $MY_KERNEL"
+	kernel_ok $MY_KERNEL $TEST_KERNEL
 }
 
 function trace_check()
@@ -125,13 +125,13 @@ function check_all()
 
 function kernel_check_all()
 {
-	kernel_check $TEST_KERNEL Client
-	kernel_check $TEST_KERNEL L0 $USER 10.10.1.2
+	kernel_check Client
+	kernel_check L0 $USER 10.10.1.2
 	if [[ "$TEST_LEVEL" != "L0" ]]; then
-		kernel_check $TEST_KERNEL L1 root $L1_IP
+		kernel_check L1 root $L1_IP
 	fi
 	if [[ "$TEST_LEVEL" == "L2" ]]; then
-		kernel_check $TEST_KERNEL L2 root $L2_IP
+		kernel_check L2 root $L2_IP
 	fi
 }
 
