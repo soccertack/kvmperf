@@ -127,6 +127,9 @@ child.timeout=None
 child.sendline('')
 wait_for_prompt(child, hostname)
 
+child.sendline('echo 1 >/sys/kernel/debug/kvm/ipi_opt')
+wait_for_prompt(child, hostname)
+
 child.sendline('cd /srv/vm && ./run-guest.sh -w')
 child.expect('waiting for connection.*server')
 
@@ -142,6 +145,8 @@ child.sendline('cd vm && ./run-guest.sh -w')
 child.expect('waiting for connection.*server')
 pin_vcpus(2)
 
+child.expect('L3.*$')
+child.sendline('cd kvmperf/localtests/ && ./hackbench.sh')
 child.interact()
 sys.exit(0)
 
@@ -151,38 +156,3 @@ child.sendline('ls -al')
 wait_for_prompt(child, hostname)
 
 sys.exit(0)
-boot_nvm(iovirt, posted, level, mi, mi_role)
-
-if mi == "l2":
-	child.interact()
-	sys.exit(0)
-
-serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-print ("Try to bind...")
-try:
-	serversocket.bind(('', 8889))
-except socket.error:
-	halt(level)
-	sys.exit(0)
-print ("Done.")
-
-print ("Try to listen...")
-serversocket.listen(1) # become a server socket.
-print ("Done.")
-
-print ("Try to accept...")
-connection, address = serversocket.accept()
-print ("Done.")
-
-while True:
-    print ("Waiting for incoming messages.")
-    buf = connection.recv(64)
-    if len(buf) > 0:
-        print buf
-	if buf == "reboot":
-		reboot(iovirt, posted, level, mi)
-		connection.send("ready")
-	elif buf == "halt":
-		halt(level)
-		break;
