@@ -137,6 +137,7 @@ child.sendline('cd vm && ./run-guest.sh -w')
 child.expect('waiting for connection.*server')
 pin_vcpus(1)
 
+child.expect('L2.*$')
 child.sendline('cd vm && ./run-guest.sh -w')
 child.expect('waiting for connection.*server')
 pin_vcpus(2)
