@@ -164,9 +164,8 @@ child.sendline('')
 wait_for_prompt(child, hostname)
 boot_nvm(iovirt, posted, level, mi, mi_role)
 
-if mi == "l2":
-	child.interact()
-	sys.exit(0)
+child.interact()
+sys.exit(0)
 
 serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 

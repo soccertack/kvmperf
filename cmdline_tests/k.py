@@ -130,16 +130,16 @@ wait_for_prompt(child, hostname)
 child.sendline('cd /srv/vm && ./run-guest.sh -w')
 child.expect('waiting for connection.*server')
 
-pin_vcpus(1)
+pin_vcpus(0)
 child.expect('L1.*$')
 
 child.sendline('cd vm && ./run-guest.sh -w')
 child.expect('waiting for connection.*server')
-pin_vcpus(2)
+pin_vcpus(1)
 
 child.sendline('cd vm && ./run-guest.sh -w')
 child.expect('waiting for connection.*server')
-pin_vcpus(3)
+pin_vcpus(2)
 
 child.interact()
 sys.exit(0)
