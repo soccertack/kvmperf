@@ -24,10 +24,11 @@ def wait_for_prompt(child, hostname):
     child.expect('%s.*#' % hostname)
 
 def pin_vcpus(level):
-	os.system('cd /srv/vm/qemu/scripts/qmp/ && sudo ./pin_vcpus.sh && cd -')
-	if level > 1:
+        if level == 0:
+	        os.system('cd /srv/vm/qemu/scripts/qmp/ && sudo ./pin_vcpus.sh && cd -')
+	if level == 1:
 		os.system('ssh root@%s "cd vm/qemu/scripts/qmp/ && ./pin_vcpus.sh"' % l1_addr)
-	if level > 2:
+	if level == 2:
 		os.system('ssh root@10.10.1.101 "cd vm/qemu/scripts/qmp/ && ./pin_vcpus.sh"')
 	print ("vcpu is pinned")
 
@@ -116,43 +117,6 @@ def reboot(iovirt, posted, level, mi, mi_role):
 ## MAIN
 
 hostname = os.popen('hostname | cut -d . -f1').read().strip()
-if hostname == "kvm-dest":
-    l1_addr = "10.10.1.110"
-
-level  = int(raw_input("Enter virtualization level [2]: ") or "2")
-if level < 1:
-	print ("We don't (need to) support L0")
-	sys.exit(0)
-if level > 3:
-	print ("Are you sure to run virt level %d?" % level)
-	sleep(5)
-
-# iovirt: pv, pt(pass-through), or vp(virtual-passthough)
-iovirt = raw_input("Enter I/O virtualization level [%s]: " % io_default) or io_default
-if iovirt not in ["pv", "pt", "vp"]:
-	print ("Enter pv, pt, or vp")
-	sys.exit(0)
-
-posted = False
-if iovirt == "vp":
-	posted = raw_input("Enable posted-interrupts in vIOMMU? [no]: ") or "no"
-	if posted == "no":
-		posted = False
-	else:
-		posted = True
-
-
-mi_role = ""
-mi = raw_input("Migration? [%s]: " % mi_default) or mi_default
-if mi not in ["no", "l2"]:
-	print ("Enter no or l2")
-	sys.exit(0)
-elif mi == "l2":
-	if hostname == "kvm-dest":
-		mi_role = 'dest'
-	else:
-		mi_role = 'src'
-
 
 child = pexpect.spawn('bash')
 #https://stackoverflow.com/questions/29245269/pexpect-echoes-sendline-output-twice-causing-unwanted-characters-in-buffer
@@ -162,37 +126,33 @@ child.timeout=None
 
 child.sendline('')
 wait_for_prompt(child, hostname)
-boot_nvm(iovirt, posted, level, mi, mi_role)
 
+child.sendline('echo 1 >/sys/kernel/debug/kvm/ipi_opt')
+wait_for_prompt(child, hostname)
+
+child.sendline('cd /srv/vm && ./run-guest.sh -w')
+child.expect('waiting for connection.*server')
+
+pin_vcpus(0)
+child.expect('L1.*$')
+
+child.sendline('cd vm && ./run-guest.sh -w')
+child.expect('waiting for connection.*server')
+pin_vcpus(1)
+
+child.expect('L2.*$')
+child.sendline('cd vm && ./run-guest.sh -w')
+child.expect('waiting for connection.*server')
+pin_vcpus(2)
+
+child.expect('L3.*$')
+child.sendline('cd kvmperf/localtests/ && ./hackbench.sh')
 child.interact()
 sys.exit(0)
 
-serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+wait_for_prompt(child, hostname)
 
-print ("Try to bind...")
-try:
-	serversocket.bind(('', 8889))
-except socket.error:
-	halt(level)
-	sys.exit(0)
-print ("Done.")
+child.sendline('ls -al')
+wait_for_prompt(child, hostname)
 
-print ("Try to listen...")
-serversocket.listen(1) # become a server socket.
-print ("Done.")
-
-print ("Try to accept...")
-connection, address = serversocket.accept()
-print ("Done.")
-
-while True:
-    print ("Waiting for incoming messages.")
-    buf = connection.recv(64)
-    if len(buf) > 0:
-        print buf
-	if buf == "reboot":
-		reboot(iovirt, posted, level, mi)
-		connection.send("ready")
-	elif buf == "halt":
-		halt(level)
-		break;
+sys.exit(0)
