@@ -106,10 +106,6 @@ while :
 	esac
 done
 
-if [ ${#targets[@]} -eq 0 ]; then
-	exit
-fi
-
 # This is to get the list of exits.
 # Assume that all VMs have the same set of exit counters,
 # and we just get the list from the first one.
