@@ -6,7 +6,7 @@ L1_IP=10.10.1.100
 L2_IP=10.10.1.101
 
 #These are default ones from KVM
-default_exits=(exits io_exits irq_exits halt_exits mmio_exits)
+default_exits=(exits)
 
 function print_title {
 	for exit in ${exits[@]}; do
@@ -114,10 +114,7 @@ for i in "${targets[@]}"; do
 	break
 done
 
-# We don't use default exit stats from KVM any more since our framework
-# has the same state
-exits=("${added_exits[@]}")
-#exits=("${default_exits[@]}" "${added_exits[@]}")
+exits=("${default_exits[@]}" "${added_exits[@]}")
 
 for exit in ${exits[@]}; do
 	declare -a PREV_$exit
