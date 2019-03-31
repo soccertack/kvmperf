@@ -76,8 +76,7 @@ function save_exits {
 function save_stat {
 	for i in "${targets[@]}"; do
 		save_exits $i
-	break
-done
+	done
 }
 
 # The first argument is for the output file name
