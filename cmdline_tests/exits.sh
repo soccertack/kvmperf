@@ -3,6 +3,7 @@ ALL_EXITS=$APP-exits-all.txt
 USER=root
 L0_IP=10.10.1.2
 L1_IP=10.10.1.100
+L2_IP=10.10.1.101
 
 #These are default ones from KVM
 default_exits=(exits io_exits irq_exits halt_exits mmio_exits)
@@ -33,13 +34,10 @@ function read_raw {
 }
 
 function read_stat {
-	if [ "$measure_L0" == 1 ]; then
-		read_raw $1 "0" $L0_IP
-	fi
-
-	if [ "$measure_L1" == 1 ]; then
-		read_raw $1 "1" $L1_IP
-	fi
+	for i in "${targets[@]}"; do
+		IP=${i}_IP
+		read_raw $1 "${i: -1}" ${!IP}
+	done
 }
 
 function start_measurement {
@@ -57,6 +55,8 @@ function save_exits {
 		index=0
 	elif [ "$1" == "L1" ]; then
 		index=1
+	elif [ "$1" == "L2" ]; then
+		index=2
 	else
 		echo "Wrong argument for save_exits: $1"
 		exit
@@ -74,32 +74,22 @@ function save_exits {
 }
 
 function save_stat {
-	if [ "$measure_L0" == 1 ]; then
-		save_exits "L0"
-	fi
-
-	if [ "$measure_L1" == 1 ]; then
-		save_exits "L1"
-	fi
+	for i in "${targets[@]}"; do
+		save_exits $i
+	break
+done
 }
 
 # The first argument is for the output file name
 shift 1
 
-# TODO: ignore these flags if the kernel doesn't have custom exit stat
-measure_L0=0
-measure_L1=0
+targets=()
 while :
 	do
 	case "$1" in
-	  L0)
-	    echo "Collect stats from L0"
-	    measure_L0=1
-	    shift 1
-	    ;;
-	  L1)
-	    echo "Collect stats from L1"
-	    measure_L1=1
+	  L0 | L1 | L2)
+	    echo "Collect stats from $1"
+	    targets+=($1)
 	    shift 1
 	    ;;
 	  --) # End of all options
@@ -116,11 +106,19 @@ while :
 	esac
 done
 
-if [ $measure_L0 == "1" ]; then
-	added_exits=$(ssh root@$L0_IP "ls /sys/kernel/debug/kvm/ | grep exits_")
-elif [ $measure_L1 == "1" ]; then
-	added_exits=$(ssh root@$L1_IP "ls /sys/kernel/debug/kvm/ | grep exits_")
+if [ ${#targets[@]} -eq 0 ]; then
+	exit
 fi
+
+# This is to get the list of exits.
+# Assume that all VMs have the same set of exit counters,
+# and we just get the list from the first one.
+for i in "${targets[@]}"; do
+	IP=${i}_IP
+	added_exits=$(ssh root@${!IP} "ls /sys/kernel/debug/kvm/ | grep exits_")
+	echo $added_exits
+	break
+done
 
 # We don't use default exit stats from KVM any more since our framework
 # has the same state
