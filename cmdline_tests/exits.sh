@@ -116,7 +116,6 @@ fi
 for i in "${targets[@]}"; do
 	IP=${i}_IP
 	added_exits=$(ssh root@${!IP} "ls /sys/kernel/debug/kvm/ | grep exits_")
-	echo $added_exits
 	break
 done
 
