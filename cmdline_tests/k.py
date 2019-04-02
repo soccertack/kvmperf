@@ -39,8 +39,8 @@ child.timeout=None
 child.sendline('')
 wait_for_prompt(child, hostname)
 
-#child.sendline('echo 1 >/sys/kernel/debug/kvm/ipi_opt')
-#wait_for_prompt(child, hostname)
+child.sendline('echo 1 >/sys/kernel/debug/kvm/ipi_opt')
+wait_for_prompt(child, hostname)
 
 child.sendline(cmd_cd + ' && ' + cmd_viommu + ' -w --pi')
 child.expect('waiting for connection.*server')
