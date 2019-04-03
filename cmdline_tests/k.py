@@ -28,6 +28,8 @@ cmd_vfio = './run-guest-vfio.sh'
 cmd_viommu = './run-guest-viommu.sh'
 cmd_vfio_viommu = './run-guest-vfio-viommu.sh'
 
+pin_waiting='waiting for connection.*server'
+
 hostname = os.popen('hostname | cut -d . -f1').read().strip()
 
 child = pexpect.spawn('bash')
@@ -43,19 +45,19 @@ child.sendline('echo 1 >/sys/kernel/debug/kvm/ipi_opt')
 wait_for_prompt(child, hostname)
 
 child.sendline(cmd_cd + ' && ' + cmd_viommu + ' -w --pi')
-child.expect('waiting for connection.*server')
+child.expect(pin_waiting)
 
 pin_vcpus(0)
 child.expect('L1.*$')
 
 child.sendline(cmd_cd + ' && ' + cmd_vfio_viommu + ' -w --pi')
-child.expect('waiting for connection.*server')
+child.expect(pin_waiting)
 
 pin_vcpus(1)
 child.expect('L2.*$')
 
 child.sendline(cmd_cd + ' && ' + cmd_vfio + ' -w')
-child.expect('waiting for connection.*server')
+child.expect(pin_waiting)
 
 pin_vcpus(2)
 child.expect('L3.*$')
