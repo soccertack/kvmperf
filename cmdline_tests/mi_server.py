@@ -110,6 +110,7 @@ def handle_recv(conn, data):
         if server_status== S_WFT:
                 if data == MSG_TERMINATED:
 			server_status = S_MIGRAION_END
+			time.sleep(2)
 			
 
 def boot_nvm(conn):
