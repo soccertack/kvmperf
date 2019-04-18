@@ -24,6 +24,7 @@ S_WAIT_FOR_BOOT = 1
 S_NVM_READY = 2
 S_MIGRAION_START = 3
 S_MIGRAION_END = 4
+S_WFT = 5 # Wait for termination
 
 def set_status(conn, st):
 	conn_status[conn][IDX_STATUS] = st
@@ -104,9 +105,11 @@ def handle_recv(conn, data):
 			print("migration is completed")
 			print("send messages to terminate VMs")
 			terminate_all()
+			server_status = S_WFT
+
+        if server_state == S_WFT:
+                if data == MSG_TERMINATED:
 			server_status = S_MIGRAION_END
-			print("Wait 10 sec until clients are terminated")
-			time.sleep(10)
 			
 
 def boot_nvm(conn):
