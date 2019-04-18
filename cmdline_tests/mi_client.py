@@ -76,6 +76,7 @@ def handle_recv(c, buf):
 
 	if buf == MSG_TERMINATE:
 		mi_api.terminate_vms()
+		c.send(MSG_TERMINATED)
 		status = C_TERMINATED
 
 def main():
