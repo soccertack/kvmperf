@@ -107,7 +107,7 @@ def handle_recv(conn, data):
 			terminate_all()
 			server_status = S_WFT
 
-        if server_state == S_WFT:
+        if server_status== S_WFT:
                 if data == MSG_TERMINATED:
 			server_status = S_MIGRAION_END
 			
