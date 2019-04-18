@@ -44,19 +44,23 @@ wait_for_prompt(child, hostname)
 child.sendline('echo 1 >/sys/kernel/debug/kvm/ipi_opt')
 wait_for_prompt(child, hostname)
 
-child.sendline(cmd_cd + ' && ' + cmd_viommu + ' -w --pi')
+PI = ' --pi'
+OV = ' -o' #overcommit
+PIN = ' -w'
+
+child.sendline(cmd_cd + ' && ' + cmd_viommu + PIN + PI)
 child.expect(pin_waiting)
 
 pin_vcpus(0)
 child.expect('L1.*$')
 
-child.sendline(cmd_cd + ' && ' + cmd_vfio_viommu + ' -w --pi')
+child.sendline(cmd_cd + ' && ' + cmd_vfio_viommu + PIN + PI)
 child.expect(pin_waiting)
 
 pin_vcpus(1)
 child.expect('L2.*$')
 
-child.sendline(cmd_cd + ' && ' + cmd_vfio + ' -w')
+child.sendline(cmd_cd + ' && ' + cmd_vfio + PIN)
 child.expect(pin_waiting)
 
 pin_vcpus(2)
