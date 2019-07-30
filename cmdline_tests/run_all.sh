@@ -206,6 +206,7 @@ if [[ -n $TEST_DESC ]]; then
 		mkdir $TEST_DESC/$i
 		move_results $TEST_DESC/$i
 	done
+	echo "$TEST_DESC is done"
 else
 	install_tests
 	run_tests
