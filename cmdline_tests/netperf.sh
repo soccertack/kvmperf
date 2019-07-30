@@ -32,7 +32,9 @@ for _TEST in TCP_STREAM TCP_RR TCP_MAERTS ; do
 
 		if [[ $? == 0 ]]; then
 			if [[ "$_TEST" == "TCP_RR" ]]; then
-				cat /tmp/netperf_single.txt | tail -n 2 | head -n 1 | awk '{ print $6 }' >> $RESULTS
+				ret=`cat /tmp/netperf_single.txt | tail -n 2 | head -n 1 | awk '{ print $6 }'`
+				echo $ret >> $RESULTS
+				save_performance $ret
 			else
 				cat /tmp/netperf_single.txt | tail -n 1 | awk '{ print $5 }' >> $RESULTS
 			fi
