@@ -80,7 +80,7 @@ function save_stat {
 }
 
 function save_performance {
-	for exit in ${exits[@]}; do
+	for i in "${targets[@]}"; do
 		echo "Performance for the stat above: $1" >> $ALL_EXITS
 		break
 	done
