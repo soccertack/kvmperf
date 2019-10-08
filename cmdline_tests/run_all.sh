@@ -1,6 +1,7 @@
 #!/bin/bash
 
 TEST_LEVEL=${1:-"L2"}
+SINGLE_WORKLOAD=$2
 
 L0_IP="10.10.1.2"
 L1_IP="10.10.1.100"
@@ -10,7 +11,10 @@ L3_IP="10.10.1.102"
 L2_PP_IP="10.10.1.201"
 TEST_USER="root"
 
-source ./check.sh $TEST_LEVEL
+echo $SINGLE_WORKLOAD
+if [[ -z $SINGLE_WORKLOAD ]]; then
+	source ./check.sh $TEST_LEVEL
+fi
 
 LOCAL=0
 IDX_OFFSET=3
@@ -174,11 +178,29 @@ show_tests() {
 	echo ""
 }
 
-while :
-do
-	# This is an inline function, and it has 'break' in it.
-	show_tests
-done
+pick_test() {
+	i=2
+	for TEST in ${TEST_LIST[@]}; do
+		i=$(($i+1))
+		idx=$(($i-$IDX_OFFSET))
+		if [[ $TEST == $SINGLE_WORKLOAD ]]; then
+			TEST_ARRAY[$idx]=1
+		fi
+	done
+}
+
+
+if [[ $SINGLE_WORKLOAD ]]; then
+	pick_test $SINGLE_WORKLOAD
+else
+	while :
+	do
+		# This is an inline function, and it has 'break' in it.
+		show_tests
+	done
+	echo -n "Enter test name: "
+	read TEST_DESC
+fi
 
 print_target_tests
 
@@ -191,9 +213,6 @@ TESTS=( $TESTS )
 SERVICES=( $SERVICES )
 CMD_PATH=$KVMPERF_PATH/cmdline_tests
 LOCAL_PATH=$KVMPERF_PATH/localtests
-
-echo -n "Enter test name: "
-read TEST_DESC
 
 if [[ -n $TEST_DESC ]]; then
 	mkdir $TEST_DESC
