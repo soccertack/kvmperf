@@ -112,7 +112,7 @@ function run_tests()
 		if [[ ${TEST_ARRAY[$__i]} == 1 ]]; then
 			# Commands for mysql is a bit different from others.
 			if [[ $__i == 0 ]]; then
-				./mysql.sh run $TARGET_IP $TEST_USER $CMD_PATH $mysql_option
+				./mysql.sh run $TARGET_IP $TEST_USER $CMD_PATH 10 $mysql_option
 			else
 				ssh $TEST_USER@$TARGET_IP "sudo service ${SERVICES[$__i]} start"
 				./$TEST.sh $TARGET_IP
