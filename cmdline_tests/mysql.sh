@@ -13,6 +13,7 @@ TEST_USER=${3}
 CMD_PATH=${4}
 
 REPTS=${5-10}
+REQ=${6-''}
 
 NR_REQUESTS=1000
 TABLE_SIZE=1000000
@@ -29,7 +30,7 @@ function cleanup() {
 }
 
 function run() {
-	sysbench --test=oltp --oltp-table-size=$TABLE_SIZE --num-threads=$num_threads --mysql-host=$TARGET_IP --mysql-password=kvm run | tee \
+	sysbench --test=oltp $REQ --oltp-table-size=$TABLE_SIZE --num-threads=$num_threads --mysql-host=$TARGET_IP --mysql-password=kvm run | tee \
 	>(grep 'total time:' | awk '{ print $3 }' | sed 's/s//' >> $RESULTS)
 }
 

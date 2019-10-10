@@ -179,6 +179,11 @@ show_tests() {
 }
 
 pick_test() {
+	if [[ $SINGLE_WORKLOAD == 'hackbench' ]]; then
+		LOCAL=1
+		return
+	fi
+
 	i=2
 	for TEST in ${TEST_LIST[@]}; do
 		i=$(($i+1))
