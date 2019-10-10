@@ -11,6 +11,7 @@ L3_IP="10.10.1.102"
 L2_PP_IP="10.10.1.201"
 TEST_USER="root"
 
+mysql_option=''
 echo $SINGLE_WORKLOAD
 if [[ -z $SINGLE_WORKLOAD ]]; then
 	source ./check.sh $TEST_LEVEL
@@ -111,7 +112,7 @@ function run_tests()
 		if [[ ${TEST_ARRAY[$__i]} == 1 ]]; then
 			# Commands for mysql is a bit different from others.
 			if [[ $__i == 0 ]]; then
-				./mysql.sh run $TARGET_IP $TEST_USER $CMD_PATH
+				./mysql.sh run $TARGET_IP $TEST_USER $CMD_PATH $mysql_option
 			else
 				ssh $TEST_USER@$TARGET_IP "sudo service ${SERVICES[$__i]} start"
 				./$TEST.sh $TARGET_IP
@@ -197,6 +198,7 @@ pick_test() {
 
 if [[ $SINGLE_WORKLOAD ]]; then
 	pick_test $SINGLE_WORKLOAD
+	mysql_option='--max-requests'
 else
 	while :
 	do
