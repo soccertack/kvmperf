@@ -101,9 +101,9 @@ function run_tests()
 	# Run local tests
 	if [[ $LOCAL == 1 ]]; then
 		ssh $TEST_USER@$TARGET_IP "pushd ${LOCAL_PATH};rm *.txt"
-		ssh $TEST_USER@$TARGET_IP "pushd ${LOCAL_PATH};sudo ./run_all.sh 0 0 0 10"
+		ssh $TEST_USER@$TARGET_IP "pushd ${LOCAL_PATH};sudo ./run_all.sh 0 0 0 20"
 		#ssh $TEST_USER@$TARGET_IP "pushd ${LOCAL_PATH};sudo ./fio.sh 3"
-		scp $TEST_USER@$TARGET_IP:"$LOCAL_PATH/*.txt" .
+		scp $TEST_USER@$TARGET_IP:"$LOCAL_PATH/hackbench.txt" .
 	fi
 
 	# Run tests
@@ -141,7 +141,7 @@ show_tests() {
 	if [[ $LOCAL == 1 ]]; then
 		echo -n "*"
 	fi
-	echo [$i] "local tests (hackbench and kernbench)"
+	echo [$i] "hackbench"
 
 	for TEST in ${TEST_LIST[@]}; do
 		i=$(($i+1))
