@@ -21,8 +21,8 @@ LOCAL=0
 IDX_OFFSET=3
 
 # mysql should be the first one in the list
-TESTS="mysql netperf-rr netperf-stream netperf-maerts apache memcached nginx"
-SERVICES="mysql netperf netperf netperf apache2 memcached nginx"
+TESTS="mysql netperf-rr netperf-stream netperf-maerts apache memcached"
+SERVICES="mysql netperf netperf netperf apache2 memcached"
 
 TEST_LIST=( $TESTS )
 
